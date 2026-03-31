@@ -1,0 +1,1844 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="韩花亭内部考试系统统一登录">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="robots" content="noindex, nofollow">
+    <title>韩花亭内部考试系统 统一登录</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@3.4.21/dist/vue.global.prod.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.19.0/js/md5.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --brand-orange: #ff7a45;
+            --brand-orange-dark: #e66a3a;
+            --brand-orange-light: #ff8f66;
+            --brand-blue: #165dff;
+            --brand-blue-dark: #0e4cc7;
+            --danger: #ff4d4f;
+            --warning: #faad14;
+            --success: #52c41a;
+            --text-primary: #ffffff;
+            --text-secondary: #b8b8d4;
+            --text-muted: #6c6c8a;
+            --bg-dark-start: #121228;
+            --bg-dark-end: #1a1a36;
+            --bg-card: rgba(20, 20, 40, 0.85);
+            --border-color: rgba(255, 122, 69, 0.2);
+            --border-color-hover: rgba(255, 122, 69, 0.5);
+        }
+
+        body {
+            font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, var(--bg-dark-start) 0%, var(--bg-dark-end) 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            overflow: hidden;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        #particles-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 122, 69, 0.3);
+            animation: float 15s infinite;
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% {
+                opacity: 1;
+            }
+            90% {
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(-100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        .login-box {
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            padding: 55px 45px;
+            border-radius: 24px;
+            border: 1px solid var(--border-color);
+            box-shadow: 
+                0 8px 32px rgba(0, 0, 0, 0.4),
+                0 0 60px rgba(255, 122, 69, 0.1),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 440px;
+            position: relative;
+            z-index: 1;
+            animation: slideUp 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .login-box::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(135deg, var(--brand-orange), var(--brand-blue), var(--brand-orange));
+            border-radius: 24px;
+            z-index: -1;
+            opacity: 0.5;
+            filter: blur(8px);
+            animation: borderGlow 3s ease-in-out infinite;
+        }
+
+        @keyframes borderGlow {
+            0%, 100% {
+                opacity: 0.3;
+            }
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .brand-section {
+            text-align: center;
+            margin-bottom: 45px;
+            animation: fadeInDown 0.8s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .brand-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, var(--brand-orange) 0%, var(--brand-blue) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            box-shadow: 0 8px 24px rgba(255, 122, 69, 0.4);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 8px 24px rgba(255, 122, 69, 0.4);
+            }
+            50% {
+                transform: scale(1.05);
+                box-shadow: 0 12px 32px rgba(255, 122, 69, 0.6);
+            }
+        }
+
+        .brand-title {
+            font-size: 26px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-orange) 0%, var(--brand-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 0.5px;
+        }
+
+        .brand-subtitle {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-top: 8px;
+            letter-spacing: 1px;
+        }
+
+        .form-group {
+            margin-bottom: 28px;
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) both;
+        }
+
+        .form-group:nth-child(1) {
+            animation-delay: 0.3s;
+        }
+
+        .form-group:nth-child(2) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-secondary);
+            font-size: 14px;
+            font-weight: 500;
+            letter-spacing: 0.3px;
+        }
+
+        .form-group label::after {
+            content: '*';
+            color: var(--danger);
+            margin-left: 4px;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 16px 50px 16px 20px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-primary);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .form-input::placeholder {
+            color: var(--text-muted);
+            transition: opacity 0.3s;
+        }
+
+        .form-input:focus::placeholder {
+            opacity: 0.5;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--brand-orange);
+            background: rgba(255, 122, 69, 0.08);
+            box-shadow: 
+                0 0 0 4px rgba(255, 122, 69, 0.1),
+                0 0 25px rgba(255, 122, 69, 0.3),
+                inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .form-input.error {
+            border-color: var(--danger);
+            background: rgba(255, 77, 79, 0.08);
+            animation: inputError 0.5s ease;
+        }
+
+        @keyframes inputError {
+            0%, 100% { transform: translateX(0); }
+            20%, 60% { transform: translateX(-5px); }
+            40%, 80% { transform: translateX(5px); }
+        }
+
+        .form-input.error:focus {
+            box-shadow: 
+                0 0 0 4px rgba(255, 77, 79, 0.1),
+                0 0 25px rgba(255, 77, 79, 0.3);
+        }
+
+        .form-input:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+            z-index: 2;
+        }
+
+        .input-icon:hover {
+            color: var(--brand-orange);
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        .error-message {
+            margin-top: 12px;
+            font-size: 13px;
+            color: var(--danger);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: errorSlideIn 0.3s ease;
+            padding: 12px 16px;
+            background: rgba(255, 77, 79, 0.1);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 77, 79, 0.2);
+        }
+
+        @keyframes errorSlideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            background: linear-gradient(135deg, var(--brand-orange) 0%, var(--brand-orange-dark) 100%);
+            color: #ffffff;
+            box-shadow: 
+                0 4px 15px rgba(255, 122, 69, 0.4),
+                0 0 30px rgba(255, 122, 69, 0.2);
+            margin-top: 10px;
+            position: relative;
+            overflow: hidden;
+            letter-spacing: 0.5px;
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.5s both;
+        }
+
+        .login-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            transition: left 0.8s ease;
+        }
+
+        .login-btn:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        .login-btn:hover:not(:disabled) {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 
+                0 8px 25px rgba(255, 122, 69, 0.6),
+                0 0 50px rgba(255, 122, 69, 0.3);
+        }
+
+        .login-btn:active:not(:disabled) {
+            transform: translateY(-1px) scale(0.98);
+        }
+
+        .login-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .login-btn.loading {
+            pointer-events: none;
+        }
+
+        .login-btn.loading::after {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid transparent;
+            border-top-color: currentColor;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 12px;
+            vertical-align: middle;
+        }
+
+        .login-btn.success {
+            background: linear-gradient(135deg, var(--success) 0%, #389e0d 100%);
+            box-shadow: 
+                0 4px 15px rgba(82, 196, 26, 0.4),
+                0 0 30px rgba(82, 196, 26, 0.2);
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .btn-ripple {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.4);
+            transform: scale(0);
+            animation: ripple 0.6s linear;
+            pointer-events: none;
+        }
+
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
+
+        .remember-section {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            animation: fadeInUp 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.45s both;
+        }
+
+        .remember-checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .remember-checkbox input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: var(--brand-orange);
+        }
+
+        .remember-checkbox span {
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .lock-message {
+            background: rgba(255, 77, 79, 0.1);
+            border: 1px solid rgba(255, 77, 79, 0.3);
+            border-radius: 14px;
+            padding: 24px;
+            margin-bottom: 25px;
+            text-align: center;
+            animation: lockPulse 2s ease-in-out infinite;
+        }
+
+        @keyframes lockPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(255, 77, 79, 0.2);
+            }
+            50% {
+                box-shadow: 0 0 0 10px rgba(255, 77, 79, 0);
+            }
+        }
+
+        .lock-message .icon {
+            font-size: 42px;
+            margin-bottom: 12px;
+            animation: shake 2s ease-in-out infinite;
+        }
+
+        @keyframes shake {
+            0%, 90%, 100% { transform: translateX(0); }
+            92%, 96% { transform: translateX(-5px); }
+            94%, 98% { transform: translateX(5px); }
+        }
+
+        .lock-message p {
+            color: var(--danger);
+            font-size: 15px;
+            line-height: 1.7;
+            margin-bottom: 8px;
+        }
+
+        .lock-message .countdown {
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--danger);
+            margin-top: 10px;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .footer-info {
+            text-align: center;
+            margin-top: 35px;
+            padding-top: 25px;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            animation: fadeIn 0.8s ease 0.6s both;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .footer-info p {
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.8;
+        }
+
+        .footer-info a {
+            color: var(--brand-orange);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-info a:hover {
+            color: var(--brand-orange-light);
+        }
+
+        /* ==================== 响应式设计适配 ==================== */
+
+        @media screen and (max-width: 768px) {
+            .login-box {
+                margin: 20px;
+                padding: 40px 30px;
+                border-radius: 20px;
+            }
+
+            .brand-logo {
+                width: 70px;
+                height: 70px;
+                font-size: 32px;
+            }
+
+            .brand-title {
+                font-size: 22px;
+            }
+
+            .brand-section {
+                margin-bottom: 35px;
+            }
+
+            .form-group {
+                margin-bottom: 24px;
+            }
+
+            .form-input {
+                padding: 14px 46px 14px 16px;
+                font-size: 14px;
+                border-radius: 12px;
+            }
+
+            .login-btn {
+                padding: 16px;
+                font-size: 15px;
+                border-radius: 12px;
+            }
+
+            .lock-message {
+                padding: 20px;
+            }
+
+            .lock-message .icon {
+                font-size: 36px;
+            }
+
+            .lock-message .countdown {
+                font-size: 24px;
+            }
+
+            .footer-info {
+                margin-top: 28px;
+                padding-top: 20px;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .login-box {
+                margin: 15px;
+                padding: 30px 22px;
+            }
+
+            .brand-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 28px;
+                border-radius: 16px;
+            }
+
+            .brand-title {
+                font-size: 20px;
+            }
+
+            .brand-subtitle {
+                font-size: 12px;
+            }
+
+            .brand-section {
+                margin-bottom: 28px;
+            }
+
+            .form-group label {
+                font-size: 13px;
+            }
+
+            .form-input {
+                padding: 13px 42px 13px 14px;
+                font-size: 14px;
+            }
+
+            .input-icon {
+                font-size: 18px;
+                right: 14px;
+            }
+
+            .login-btn {
+                padding: 15px;
+                font-size: 15px;
+            }
+
+            .remember-checkbox span {
+                font-size: 12px;
+            }
+
+            .error-message {
+                font-size: 12px;
+                padding: 10px 14px;
+            }
+
+            .lock-message p {
+                font-size: 14px;
+            }
+        }
+
+        @media screen and (max-height: 700px) and (min-width: 769px) {
+            .login-box {
+                padding: 40px 45px;
+            }
+
+            .brand-section {
+                margin-bottom: 30px;
+            }
+
+            .brand-logo {
+                width: 65px;
+                height: 65px;
+                font-size: 30px;
+            }
+        }
+
+        /* ==================== 无障碍支持 ==================== */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        .form-input:focus-visible {
+            outline: 2px solid var(--brand-orange);
+            outline-offset: 2px;
+        }
+
+        .login-btn:focus-visible {
+            outline: 2px solid var(--brand-orange);
+            outline-offset: 2px;
+        }
+
+        /* ==================== 新增功能：系统管理面板 ==================== */
+        .admin-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--brand-orange) 0%, var(--brand-blue) 100%);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(255, 122, 69, 0.4);
+            z-index: 1000;
+            transition: all 0.3s;
+        }
+
+        .admin-toggle:hover {
+            transform: scale(1.1);
+            box-shadow: 0 6px 25px rgba(255, 122, 69, 0.6);
+        }
+
+        .admin-panel {
+            position: fixed;
+            top: 0;
+            right: -420px;
+            width: 400px;
+            max-width: 95vw;
+            height: 100vh;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-left: 1px solid var(--border-color);
+            z-index: 999;
+            transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow-y: auto;
+            box-shadow: -8px 0 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .admin-panel.open {
+            right: 0;
+        }
+
+        .admin-header {
+            padding: 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: linear-gradient(135deg, rgba(255, 122, 69, 0.1) 0%, rgba(22, 93, 255, 0.1) 100%);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .admin-title {
+            font-size: 18px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--brand-orange) 0%, var(--brand-blue) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .admin-close {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            color: var(--text-secondary);
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .admin-close:hover {
+            background: rgba(255, 77, 79, 0.2);
+            color: var(--danger);
+        }
+
+        .admin-content {
+            padding: 20px;
+        }
+
+        .admin-section {
+            margin-bottom: 24px;
+        }
+
+        .admin-section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .admin-section-title::before {
+            content: '';
+            width: 4px;
+            height: 14px;
+            background: linear-gradient(135deg, var(--brand-orange) 0%, var(--brand-blue) 100%);
+            border-radius: 2px;
+        }
+
+        .status-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        }
+
+        .status-card.success {
+            border-color: rgba(82, 196, 26, 0.3);
+            background: rgba(82, 196, 26, 0.05);
+        }
+
+        .status-card.warning {
+            border-color: rgba(250, 173, 20, 0.3);
+            background: rgba(250, 173, 20, 0.05);
+        }
+
+        .status-card.error {
+            border-color: rgba(255, 77, 79, 0.3);
+            background: rgba(255, 77, 79, 0.05);
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .status-row:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .status-value {
+            font-size: 13px;
+            color: var(--text-primary);
+            font-weight: 500;
+            word-break: break-all;
+            text-align: right;
+            max-width: 200px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.success {
+            background: rgba(82, 196, 26, 0.15);
+            color: var(--success);
+        }
+
+        .status-badge.warning {
+            background: rgba(250, 173, 20, 0.15);
+            color: var(--warning);
+        }
+
+        .status-badge.error {
+            background: rgba(255, 77, 79, 0.15);
+            color: var(--danger);
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 10px 16px;
+            border-radius: 10px;
+            border: 1px solid var(--border-color);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-secondary);
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 8px;
+        }
+
+        .action-btn:hover {
+            background: rgba(255, 122, 69, 0.1);
+            border-color: var(--border-color-hover);
+            color: var(--brand-orange);
+        }
+
+        .action-btn.danger:hover {
+            background: rgba(255, 77, 79, 0.1);
+            border-color: rgba(255, 77, 79, 0.3);
+            color: var(--danger);
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(135deg, var(--brand-orange) 0%, var(--brand-orange-dark) 100%);
+            border-color: transparent;
+            color: white;
+        }
+
+        .action-btn.primary:hover {
+            box-shadow: 0 4px 15px rgba(255, 122, 69, 0.4);
+        }
+
+        .record-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
+        }
+
+        .record-time {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .record-info {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .record-emp {
+            font-size: 13px;
+            color: var(--text-primary);
+            word-break: break-all;
+        }
+
+        .employee-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .employee-item {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .employee-item:hover {
+            background: rgba(255, 122, 69, 0.08);
+            border-color: var(--border-color-hover);
+        }
+
+        .employee-name {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .employee-detail {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            margin: 20px 0;
+        }
+
+        @media screen and (max-width: 768px) {
+            .admin-toggle {
+                bottom: 15px;
+                right: 15px;
+                width: 44px;
+                height: 44px;
+                font-size: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div id="particles-container"></div>
+    
+    <div id="app">
+        <div class="login-box">
+            <div class="brand-section">
+                <div class="brand-logo">🍖</div>
+                <h1 class="brand-title">韩花亭内部考试系统</h1>
+                <p class="brand-subtitle">UNIFIED LOGIN SYSTEM</p>
+            </div>
+
+            <div v-if="isLocked" class="lock-message">
+                <div class="icon">🔒</div>
+                <p>账号已被临时锁定，请稍后再试</p>
+                <div class="countdown">{{ formatTime(lockCountdown) }}</div>
+            </div>
+
+            <div v-else>
+                <div class="form-group">
+                    <label>工号</label>
+                    <div class="input-wrapper">
+                        <input 
+                            type="text" 
+                            class="form-input" 
+                            :class="{ error: showError && errorField === 'employeeId' }"
+                            v-model="employeeId" 
+                            placeholder="请输入您的工号"
+                            :disabled="isLoading"
+                            autocomplete="username"
+                            maxlength="50"
+                            @keyup.enter="handleLogin"
+                            @input="clearFieldError('employeeId')"
+                        >
+                        <span v-if="employeeId" class="input-icon" @click="clearEmployeeId" title="清空">✕</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>密码</label>
+                    <div class="input-wrapper">
+                        <input 
+                            :type="showPassword ? 'text' : 'password'" 
+                            class="form-input"
+                            :class="{ error: showError && errorField === 'password' }"
+                            v-model="password" 
+                            placeholder="请输入您的密码"
+                            :disabled="isLoading"
+                            autocomplete="current-password"
+                            maxlength="100"
+                            @keyup.enter="handleLogin"
+                            @input="clearFieldError('password')"
+                        >
+                        <span class="input-icon" @click="togglePassword" :title="showPassword ? '隐藏密码' : '显示密码'">
+                            {{ showPassword ? '🙈' : '👁️' }}
+                        </span>
+                    </div>
+                </div>
+
+                <div class="remember-section">
+                    <label class="remember-checkbox">
+                        <input type="checkbox" v-model="rememberEmployeeId">
+                        <span>记住工号</span>
+                    </label>
+                </div>
+
+                <div v-if="errorMessage" class="error-message">
+                    ⚠️ {{ errorMessage }}
+                </div>
+
+                <button 
+                    class="login-btn" 
+                    :class="{ loading: isLoading, success: loginSuccess }"
+                    :disabled="isLoading"
+                    @mousedown="createRipple"
+                    @click="handleLogin"
+                    ref="loginBtnRef"
+                    :aria-label="loginSuccess ? '登录成功' : (isLoading ? '登录中' : '登录')"
+                >
+                    {{ loginSuccess ? '登录成功 ✓' : (isLoading ? '登录中...' : '登 录') }}
+                </button>
+            </div>
+
+            <div class="footer-info">
+                <p>如有问题，请联系系统管理员</p>
+                <p>© 2024 韩花亭 All Rights Reserved</p>
+            </div>
+        </div>
+    </div>
+
+    <button class="admin-toggle" @click="toggleAdminPanel" :title="showAdminPanel ? '关闭管理面板' : '打开管理面板'">
+        ⚙️
+    </button>
+
+    <div class="admin-panel" :class="{ open: showAdminPanel }">
+        <div class="admin-header">
+            <h2 class="admin-title">系统管理面板</h2>
+            <button class="admin-close" @click="toggleAdminPanel">✕</button>
+        </div>
+        <div class="admin-content">
+            <div class="admin-section">
+                <h3 class="admin-section-title">登录状态检查</h3>
+                <div class="status-card" :class="tokenStatusClass">
+                    <div class="status-row">
+                        <span class="status-label">JWT Token</span>
+                        <span class="status-badge" :class="tokenStatusClass">{{ tokenStatusText }}</span>
+                    </div>
+                    <div class="status-row" v-if="currentToken">
+                        <span class="status-label">Token预览</span>
+                        <span class="status-value">{{ currentTokenPreview }}</span>
+                    </div>
+                    <div class="status-row">
+                        <span class="status-label">用户信息</span>
+                        <span class="status-badge" :class="userStatusClass">{{ userStatusText }}</span>
+                    </div>
+                    <div class="status-row" v-if="currentUser">
+                        <span class="status-label">用户名</span>
+                        <span class="status-value">{{ currentUser.name || '-' }}</span>
+                    </div>
+                    <div class="status-row" v-if="currentUser">
+                        <span class="status-label">门店</span>
+                        <span class="status-value">{{ currentUser.shop || '-' }}</span>
+                    </div>
+                </div>
+                <button class="action-btn primary" @click="refreshStatus">🔄 刷新状态</button>
+                <button class="action-btn danger" @click="clearAuth" v-if="currentToken">🗑️ 清除登录状态</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="admin-section">
+                <h3 class="admin-section-title">员工数据管理</h3>
+                <div class="status-card" :class="employeeDataClass">
+                    <div class="status-row">
+                        <span class="status-label">员工数据</span>
+                        <span class="status-badge" :class="employeeDataClass">{{ employeeDataText }}</span>
+                    </div>
+                    <div class="status-row" v-if="employeeCount > 0">
+                        <span class="status-label">员工数量</span>
+                        <span class="status-value">{{ employeeCount }}</span>
+                    </div>
+                </div>
+                <div class="employee-list" v-if="employeeCount > 0">
+                    <div class="employee-item" v-for="(emp, key) in employees" :key="key" @click="quickFillEmployee(key)">
+                        <div class="employee-name">{{ emp.name || key }}</div>
+                        <div class="employee-detail">{{ emp.shop || '未知门店' }}</div>
+                    </div>
+                </div>
+                <button class="action-btn" @click="refreshEmployees">🔄 刷新员工数据</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="admin-section">
+                <h3 class="admin-section-title">登录历史记录</h3>
+                <div class="status-card" :class="loginRecordsClass">
+                    <div class="status-row">
+                        <span class="status-label">历史记录</span>
+                        <span class="status-badge" :class="loginRecordsClass">{{ loginRecordsText }}</span>
+                    </div>
+                    <div class="status-row" v-if="loginRecords.length > 0">
+                        <span class="status-label">记录数量</span>
+                        <span class="status-value">{{ loginRecords.length }}</span>
+                    </div>
+                </div>
+                <div v-if="loginRecords.length > 0">
+                    <div class="record-item" v-for="(record, index) in recentLoginRecords" :key="index">
+                        <div class="record-time">{{ formatRecordTime(record.timestamp) }}</div>
+                        <div class="record-info">
+                            <span class="record-emp">{{ record.employeeId || '未知' }}</span>
+                            <span class="status-badge" :class="record.success ? 'success' : 'error'">
+                                {{ record.success ? '成功' : '失败' }}
+                            </span>
+                        </div>
+                    </div>
+                </div>
+                <button class="action-btn" @click="refreshLoginRecords">🔄 刷新记录</button>
+                <button class="action-btn danger" @click="clearLoginRecords" v-if="loginRecords.length > 0">🗑️ 清空记录</button>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="admin-section">
+                <h3 class="admin-section-title">系统工具</h3>
+                <button class="action-btn" @click="goToExamSystem" v-if="currentToken">🚀 进入考试系统</button>
+                <button class="action-btn" @click="clearAllData" class="danger">⚠️ 重置所有数据</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            'use strict';
+
+            const { createApp, ref, computed, onMounted, onUnmounted, nextTick } = Vue;
+
+            createApp({
+                setup() {
+                    const CONFIG = Object.freeze({
+                        EXAM_SYSTEM_URL: './韩花亭烤肉考试系统_v2.19.0.html',
+                        JWT_SECRET: 'hht_exam_system_secret_key_2024',
+                        TOKEN_EXPIRE_HOURS: 24,
+                        MAX_LOGIN_ATTEMPTS: 5,
+                        LOCK_DURATION_MINUTES: 10,
+                        REMEMBER_EMPLOYEE_ID_KEY: 'hht_remember_employee_id',
+                        STORAGE_KEYS: Object.freeze({
+                            JWT_TOKEN: 'hht_jwt_token',
+                            AUTH_USER: 'hht_auth_user',
+                            LOGIN_ATTEMPTS: 'hht_login_attempts',
+                            LOCK_TIME: 'hht_lock_time',
+                            LOGIN_RECORDS: 'hht_login_records'
+                        }),
+                        SYNC_CHANNEL: 'hht_login_sync_channel',
+                        VALIDATION: Object.freeze({
+                            EMPLOYEE_ID_MIN_LENGTH: 1,
+                            EMPLOYEE_ID_MAX_LENGTH: 50,
+                            PASSWORD_MIN_LENGTH: 1,
+                            PASSWORD_MAX_LENGTH: 100
+                        })
+                    });
+
+                    const employeeId = ref('');
+                    const password = ref('');
+                    const showPassword = ref(false);
+                    const isLoading = ref(false);
+                    const loginSuccess = ref(false);
+                    const errorMessage = ref('');
+                    const lockCountdown = ref(0);
+                    const rememberEmployeeId = ref(false);
+                    const loginBtnRef = ref(null);
+                    const showError = ref(false);
+                    const errorField = ref('');
+                    const showAdminPanel = ref(false);
+                    const currentToken = ref('');
+                    const currentUser = ref(null);
+                    const employees = ref({});
+                    const loginRecords = ref([]);
+                    
+                    let lockTimer = null;
+                    let syncChannel = null;
+
+                    const isLocked = computed(() => {
+                        const lockTime = safeGetLocalStorage(CONFIG.STORAGE_KEYS.LOCK_TIME);
+                        if (lockTime) {
+                            const lockUntil = parseInt(lockTime, 10);
+                            const now = Date.now();
+                            if (now < lockUntil) {
+                                lockCountdown.value = Math.ceil((lockUntil - now) / 1000);
+                                return true;
+                            } else {
+                                safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.LOCK_TIME);
+                                safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.LOGIN_ATTEMPTS);
+                            }
+                        }
+                        return false;
+                    });
+
+                    const safeGetLocalStorage = (key) => {
+                        try {
+                            return localStorage.getItem(key);
+                        } catch (e) {
+                            console.warn('localStorage读取失败:', e);
+                            return null;
+                        }
+                    };
+
+                    const safeSetLocalStorage = (key, value) => {
+                        try {
+                            localStorage.setItem(key, value);
+                            return true;
+                        } catch (e) {
+                            console.warn('localStorage写入失败:', e);
+                            return false;
+                        }
+                    };
+
+                    const safeRemoveLocalStorage = (key) => {
+                        try {
+                            localStorage.removeItem(key);
+                            return true;
+                        } catch (e) {
+                            console.warn('localStorage删除失败:', e);
+                            return false;
+                        }
+                    };
+
+                    const safeParseJSON = (str, fallback = null) => {
+                        try {
+                            return JSON.parse(str);
+                        } catch (e) {
+                            console.warn('JSON解析失败:', e);
+                            return fallback;
+                        }
+                    };
+
+                    const sanitizeInput = (str) => {
+                        if (typeof str !== 'string') return '';
+                        return str.trim();
+                    };
+
+                    const validateInput = () => {
+                        const empId = sanitizeInput(employeeId.value);
+                        const pwd = password.value;
+
+                        if (!empId) {
+                            errorMessage.value = '请输入工号';
+                            errorField.value = 'employeeId';
+                            showError.value = true;
+                            return false;
+                        }
+
+                        if (empId.length < CONFIG.VALIDATION.EMPLOYEE_ID_MIN_LENGTH) {
+                            errorMessage.value = '工号格式不正确';
+                            errorField.value = 'employeeId';
+                            showError.value = true;
+                            return false;
+                        }
+
+                        if (empId.length > CONFIG.VALIDATION.EMPLOYEE_ID_MAX_LENGTH) {
+                            errorMessage.value = `工号不能超过${CONFIG.VALIDATION.EMPLOYEE_ID_MAX_LENGTH}个字符`;
+                            errorField.value = 'employeeId';
+                            showError.value = true;
+                            return false;
+                        }
+
+                        if (!pwd) {
+                            errorMessage.value = '请输入密码';
+                            errorField.value = 'password';
+                            showError.value = true;
+                            return false;
+                        }
+
+                        if (pwd.length > CONFIG.VALIDATION.PASSWORD_MAX_LENGTH) {
+                            errorMessage.value = `密码不能超过${CONFIG.VALIDATION.PASSWORD_MAX_LENGTH}个字符`;
+                            errorField.value = 'password';
+                            showError.value = true;
+                            return false;
+                        }
+
+                        showError.value = false;
+                        errorField.value = '';
+                        return true;
+                    };
+
+                    const clearFieldError = (field) => {
+                        if (errorField.value === field) {
+                            showError.value = false;
+                            errorField.value = '';
+                            errorMessage.value = '';
+                        }
+                    };
+
+                    const formatTime = (seconds) => {
+                        if (!Number.isFinite(seconds) || seconds < 0) return '00:00';
+                        const mins = Math.floor(seconds / 60);
+                        const secs = seconds % 60;
+                        return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+                    };
+
+                    const startLockCountdown = () => {
+                        if (lockTimer) clearInterval(lockTimer);
+                        lockTimer = setInterval(() => {
+                            if (lockCountdown.value > 0) {
+                                lockCountdown.value--;
+                            } else {
+                                clearInterval(lockTimer);
+                                lockTimer = null;
+                            }
+                        }, 1000);
+                    };
+
+                    const base64UrlEncode = (str) => {
+                        try {
+                            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g, (match, p1) => {
+                                return String.fromCharCode('0x' + p1);
+                            })).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+                        } catch (e) {
+                            console.error('Base64编码失败:', e);
+                            return '';
+                        }
+                    };
+
+                    const generateJWT = (payload) => {
+                        const header = { alg: 'HS256', typ: 'JWT' };
+                        const now = Math.floor(Date.now() / 1000);
+                        const tokenPayload = {
+                            ...payload,
+                            iat: now,
+                            exp: now + (CONFIG.TOKEN_EXPIRE_HOURS * 3600)
+                        };
+                        const headerEncoded = base64UrlEncode(JSON.stringify(header));
+                        const payloadEncoded = base64UrlEncode(JSON.stringify(tokenPayload));
+                        const signature = base64UrlEncode(md5(headerEncoded + '.' + payloadEncoded + CONFIG.JWT_SECRET));
+                        return `${headerEncoded}.${payloadEncoded}.${signature}`;
+                    };
+
+                    const getLoginAttempts = () => {
+                        const attemptsStr = safeGetLocalStorage(CONFIG.STORAGE_KEYS.LOGIN_ATTEMPTS);
+                        if (!attemptsStr) return {};
+                        return safeParseJSON(attemptsStr, {});
+                    };
+
+                    const saveLoginAttempts = (attempts) => {
+                        safeSetLocalStorage(CONFIG.STORAGE_KEYS.LOGIN_ATTEMPTS, JSON.stringify(attempts));
+                    };
+
+                    const incrementLoginAttempts = (empId) => {
+                        const attempts = getLoginAttempts();
+                        attempts[empId] = (attempts[empId] || 0) + 1;
+                        saveLoginAttempts(attempts);
+                        return attempts[empId];
+                    };
+
+                    const resetLoginAttempts = (empId) => {
+                        const attempts = getLoginAttempts();
+                        delete attempts[empId];
+                        saveLoginAttempts(attempts);
+                    };
+
+                    const lockAccount = (empId) => {
+                        const lockUntil = Date.now() + (CONFIG.LOCK_DURATION_MINUTES * 60 * 1000);
+                        safeSetLocalStorage(CONFIG.STORAGE_KEYS.LOCK_TIME, lockUntil.toString());
+                        lockCountdown.value = CONFIG.LOCK_DURATION_MINUTES * 60;
+                        startLockCountdown();
+                        syncWithExamSystem({
+                            type: 'ACCOUNT_LOCKED',
+                            employeeId: empId,
+                            timestamp: Date.now(),
+                            lockUntil: lockUntil
+                        });
+                    };
+
+                    const getEmployees = () => {
+                        const bindings = safeGetLocalStorage('hht_phone_bindings');
+                        if (!bindings) return {};
+                        return safeParseJSON(bindings, {});
+                    };
+
+                    const togglePassword = () => {
+                        showPassword.value = !showPassword.value;
+                    };
+
+                    const clearEmployeeId = () => {
+                        employeeId.value = '';
+                        clearFieldError('employeeId');
+                    };
+
+                    const createRipple = (event) => {
+                        const button = loginBtnRef.value;
+                        if (!button) return;
+                        const ripple = document.createElement('span');
+                        ripple.className = 'btn-ripple';
+                        const rect = button.getBoundingClientRect();
+                        const size = Math.max(rect.width, rect.height);
+                        const x = event.clientX - rect.left - size / 2;
+                        const y = event.clientY - rect.top - size / 2;
+                        ripple.style.width = ripple.style.height = `${size}px`;
+                        ripple.style.left = `${x}px`;
+                        ripple.style.top = `${y}px`;
+                        button.appendChild(ripple);
+                        setTimeout(() => ripple.remove(), 600);
+                    };
+
+                    const saveRememberedEmployeeId = () => {
+                        const empId = sanitizeInput(employeeId.value);
+                        if (rememberEmployeeId.value && empId) {
+                            safeSetLocalStorage(CONFIG.REMEMBER_EMPLOYEE_ID_KEY, empId);
+                        } else {
+                            safeRemoveLocalStorage(CONFIG.REMEMBER_EMPLOYEE_ID_KEY);
+                        }
+                    };
+
+                    const loadRememberedEmployeeId = () => {
+                        const saved = safeGetLocalStorage(CONFIG.REMEMBER_EMPLOYEE_ID_KEY);
+                        if (saved) {
+                            employeeId.value = saved;
+                            rememberEmployeeId.value = true;
+                        }
+                    };
+
+                    const createParticles = () => {
+                        const container = document.getElementById('particles-container');
+                        if (!container) return;
+                        
+                        const particleCount = Math.min(30, Math.floor(window.innerWidth / 40));
+                        const fragment = document.createDocumentFragment();
+                        
+                        for (let i = 0; i < particleCount; i++) {
+                            const particle = document.createElement('div');
+                            particle.className = 'particle';
+                            const size = Math.random() * 6 + 2;
+                            particle.style.width = `${size}px`;
+                            particle.style.height = `${size}px`;
+                            particle.style.left = `${Math.random() * 100}%`;
+                            particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
+                            particle.style.animationDelay = `${Math.random() * 15}s`;
+                            particle.style.opacity = Math.random() * 0.5 + 0.2;
+                            fragment.appendChild(particle);
+                        }
+                        
+                        container.appendChild(fragment);
+                    };
+
+                    const recordLogin = (success, employeeId, errorType = null) => {
+                        try {
+                            const record = {
+                                timestamp: Date.now(),
+                                success: success,
+                                employeeId: employeeId,
+                                errorType: errorType,
+                                userAgent: navigator.userAgent.slice(0, 100)
+                            };
+                            
+                            const records = safeParseJSON(safeGetLocalStorage(CONFIG.STORAGE_KEYS.LOGIN_RECORDS), []);
+                            records.push(record);
+                            
+                            const recentRecords = records.slice(-50);
+                            safeSetLocalStorage(CONFIG.STORAGE_KEYS.LOGIN_RECORDS, JSON.stringify(recentRecords));
+                            
+                            return record;
+                        } catch (e) {
+                            console.warn('登录记录保存失败:', e);
+                            return null;
+                        }
+                    };
+
+                    const syncWithExamSystem = (message) => {
+                        try {
+                            const syncMessage = {
+                                ...message,
+                                source: 'hht_login_system',
+                                timestamp: Date.now()
+                            };
+                            
+                            if (syncChannel) {
+                                syncChannel.postMessage(syncMessage);
+                            }
+                            
+                            safeSetLocalStorage(CONFIG.SYNC_CHANNEL, JSON.stringify(syncMessage));
+                            
+                            if (message.type === 'LOGIN_SUCCESS' || message.type === 'LOGIN_FAILED') {
+                                window.dispatchEvent(new CustomEvent('hhtLoginSync', { detail: syncMessage }));
+                            }
+                        } catch (e) {
+                            console.warn('数据同步失败:', e);
+                        }
+                    };
+
+                    const initSyncChannel = () => {
+                        if ('BroadcastChannel' in window) {
+                            try {
+                                syncChannel = new BroadcastChannel(CONFIG.SYNC_CHANNEL);
+                                syncChannel.onmessage = (event) => {
+                                    console.log('收到同步消息:', event.data);
+                                };
+                            } catch (e) {
+                                console.warn('BroadcastChannel初始化失败:', e);
+                            }
+                        }
+                    };
+
+                    const handleLogin = async () => {
+                        if (isLocked.value || isLoading.value) return;
+                        
+                        errorMessage.value = '';
+                        showError.value = false;
+                        errorField.value = '';
+
+                        if (!validateInput()) {
+                            return;
+                        }
+
+                        isLoading.value = true;
+
+                        try {
+                            await new Promise(resolve => setTimeout(resolve, 600));
+                            
+                            const empId = sanitizeInput(employeeId.value);
+                            const employees = getEmployees();
+                            let employee = null;
+                            let empKey = null;
+
+                            for (const [key, data] of Object.entries(employees)) {
+                                if (data && (data.name === empId || key === empId)) {
+                                    employee = data;
+                                    empKey = key;
+                                    break;
+                                }
+                            }
+
+                            if (!employee) {
+                                const attempts = incrementLoginAttempts(empId);
+                                recordLogin(false, empId, 'EMPLOYEE_NOT_FOUND');
+                                syncWithExamSystem({
+                                    type: 'LOGIN_FAILED',
+                                    employeeId: empId,
+                                    reason: 'EMPLOYEE_NOT_FOUND',
+                                    attempts: attempts
+                                });
+                                
+                                if (attempts >= CONFIG.MAX_LOGIN_ATTEMPTS) {
+                                    lockAccount(empId);
+                                    errorMessage.value = `连续${CONFIG.MAX_LOGIN_ATTEMPTS}次登录失败，账号已锁定${CONFIG.LOCK_DURATION_MINUTES}分钟`;
+                                } else {
+                                    errorMessage.value = `工号或密码错误，请联系管理员（剩余${CONFIG.MAX_LOGIN_ATTEMPTS - attempts}次尝试）`;
+                                }
+                                return;
+                            }
+
+                            const inputPasswordMd5 = md5(password.value);
+                            if (employee.password && employee.password !== inputPasswordMd5) {
+                                const attempts = incrementLoginAttempts(empId);
+                                recordLogin(false, empId, 'PASSWORD_MISMATCH');
+                                syncWithExamSystem({
+                                    type: 'LOGIN_FAILED',
+                                    employeeId: empId,
+                                    reason: 'PASSWORD_MISMATCH',
+                                    attempts: attempts
+                                });
+                                
+                                if (attempts >= CONFIG.MAX_LOGIN_ATTEMPTS) {
+                                    lockAccount(empId);
+                                    errorMessage.value = `连续${CONFIG.MAX_LOGIN_ATTEMPTS}次登录失败，账号已锁定${CONFIG.LOCK_DURATION_MINUTES}分钟`;
+                                } else {
+                                    errorMessage.value = `工号或密码错误，请联系管理员（剩余${CONFIG.MAX_LOGIN_ATTEMPTS - attempts}次尝试）`;
+                                }
+                                return;
+                            }
+
+                            resetLoginAttempts(empId);
+                            saveRememberedEmployeeId();
+                            loginSuccess.value = true;
+                            recordLogin(true, empId);
+                            syncWithExamSystem({
+                                type: 'LOGIN_SUCCESS',
+                                employeeId: empId,
+                                employeeName: employee.name,
+                                shop: employee.shop
+                            });
+
+                            const userData = {
+                                id: Date.now(),
+                                username: empKey || empId,
+                                name: employee.name,
+                                shop: employee.shop,
+                                phone: empKey || '',
+                                role: 'employee',
+                                type: 'employee'
+                            };
+
+                            const token = generateJWT(userData);
+                            safeSetLocalStorage(CONFIG.STORAGE_KEYS.JWT_TOKEN, token);
+                            safeSetLocalStorage(CONFIG.STORAGE_KEYS.AUTH_USER, JSON.stringify(userData));
+
+                            await new Promise(resolve => setTimeout(resolve, 500));
+                            window.location.href = CONFIG.EXAM_SYSTEM_URL;
+
+                        } catch (error) {
+                            console.error('登录错误:', error);
+                            errorMessage.value = '登录异常，请稍后重试';
+                            recordLogin(false, sanitizeInput(employeeId.value), 'SYSTEM_ERROR');
+                        } finally {
+                            if (!loginSuccess.value) {
+                                isLoading.value = false;
+                            }
+                        }
+                    };
+
+                    onMounted(() => {
+                        loadRememberedEmployeeId();
+                        createParticles();
+                        initSyncChannel();
+                        if (isLocked.value) {
+                            startLockCountdown();
+                        }
+                    });
+
+                    onUnmounted(() => {
+                        if (lockTimer) {
+                            clearInterval(lockTimer);
+                            lockTimer = null;
+                        }
+                        if (syncChannel) {
+                            try {
+                                syncChannel.close();
+                            } catch (e) {
+                            }
+                        }
+                    });
+
+                    const toggleAdminPanel = () => {
+                        showAdminPanel.value = !showAdminPanel.value;
+                        if (showAdminPanel.value) {
+                            refreshStatus();
+                            refreshEmployees();
+                            refreshLoginRecords();
+                        }
+                    };
+
+                    const refreshStatus = () => {
+                        currentToken.value = safeGetLocalStorage(CONFIG.STORAGE_KEYS.JWT_TOKEN) || '';
+                        const userStr = safeGetLocalStorage(CONFIG.STORAGE_KEYS.AUTH_USER);
+                        currentUser.value = userStr ? safeParseJSON(userStr, null) : null;
+                    };
+
+                    const tokenStatusClass = computed(() => {
+                        return currentToken.value ? 'success' : 'warning';
+                    });
+
+                    const tokenStatusText = computed(() => {
+                        return currentToken.value ? '已获取' : '未获取';
+                    });
+
+                    const currentTokenPreview = computed(() => {
+                        if (!currentToken.value) return '';
+                        const token = currentToken.value;
+                        return token.length > 30 ? token.substring(0, 30) + '...' : token;
+                    });
+
+                    const userStatusClass = computed(() => {
+                        return currentUser.value ? 'success' : 'warning';
+                    });
+
+                    const userStatusText = computed(() => {
+                        return currentUser.value ? '已登录' : '未登录';
+                    });
+
+                    const clearAuth = () => {
+                        if (confirm('确定要清除登录状态吗？')) {
+                            safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.JWT_TOKEN);
+                            safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.AUTH_USER);
+                            refreshStatus();
+                        }
+                    };
+
+                    const refreshEmployees = () => {
+                        employees.value = getEmployees();
+                    };
+
+                    const employeeCount = computed(() => {
+                        return Object.keys(employees.value).length;
+                    });
+
+                    const employeeDataClass = computed(() => {
+                        return employeeCount.value > 0 ? 'success' : 'warning';
+                    });
+
+                    const employeeDataText = computed(() => {
+                        return employeeCount.value > 0 ? '已加载' : '未找到';
+                    });
+
+                    const quickFillEmployee = (key) => {
+                        employeeId.value = key;
+                        if (showAdminPanel.value) {
+                            showAdminPanel.value = false;
+                        }
+                    };
+
+                    const refreshLoginRecords = () => {
+                        const recordsStr = safeGetLocalStorage(CONFIG.STORAGE_KEYS.LOGIN_RECORDS);
+                        loginRecords.value = recordsStr ? safeParseJSON(recordsStr, []) : [];
+                    };
+
+                    const recentLoginRecords = computed(() => {
+                        return loginRecords.value.slice().reverse().slice(0, 10);
+                    });
+
+                    const loginRecordsClass = computed(() => {
+                        return loginRecords.value.length > 0 ? 'success' : 'warning';
+                    });
+
+                    const loginRecordsText = computed(() => {
+                        return loginRecords.value.length > 0 ? '有记录' : '无记录';
+                    });
+
+                    const formatRecordTime = (timestamp) => {
+                        if (!timestamp) return '-';
+                        const date = new Date(timestamp);
+                        return date.toLocaleString('zh-CN', {
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                            second: '2-digit'
+                        });
+                    };
+
+                    const clearLoginRecords = () => {
+                        if (confirm('确定要清空所有登录历史记录吗？')) {
+                            safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.LOGIN_RECORDS);
+                            refreshLoginRecords();
+                        }
+                    };
+
+                    const goToExamSystem = () => {
+                        window.location.href = CONFIG.EXAM_SYSTEM_URL;
+                    };
+
+                    const clearAllData = () => {
+                        if (confirm('⚠️ 确定要重置所有数据吗？\n\n这将清除：\n- 登录状态\n- 登录尝试记录\n- 锁定状态\n- 登录历史\n- 记住的工号\n\n此操作不可恢复！')) {
+                            safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.JWT_TOKEN);
+                            safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.AUTH_USER);
+                            safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.LOGIN_ATTEMPTS);
+                            safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.LOCK_TIME);
+                            safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.LOGIN_RECORDS);
+                            safeRemoveLocalStorage(CONFIG.REMEMBER_EMPLOYEE_ID_KEY);
+                            safeRemoveLocalStorage(CONFIG.SYNC_CHANNEL);
+                            refreshStatus();
+                            refreshLoginRecords();
+                            alert('所有数据已重置！');
+                        }
+                    };
+
+                    return {
+                        employeeId,
+                        password,
+                        showPassword,
+                        isLoading,
+                        loginSuccess,
+                        errorMessage,
+                        isLocked,
+                        lockCountdown,
+                        rememberEmployeeId,
+                        loginBtnRef,
+                        showError,
+                        errorField,
+                        formatTime,
+                        togglePassword,
+                        clearEmployeeId,
+                        createRipple,
+                        handleLogin,
+                        clearFieldError,
+                        showAdminPanel,
+                        toggleAdminPanel,
+                        refreshStatus,
+                        currentToken,
+                        currentTokenPreview,
+                        currentUser,
+                        tokenStatusClass,
+                        tokenStatusText,
+                        userStatusClass,
+                        userStatusText,
+                        clearAuth,
+                        refreshEmployees,
+                        employees,
+                        employeeCount,
+                        employeeDataClass,
+                        employeeDataText,
+                        quickFillEmployee,
+                        refreshLoginRecords,
+                        loginRecords,
+                        recentLoginRecords,
+                        loginRecordsClass,
+                        loginRecordsText,
+                        formatRecordTime,
+                        clearLoginRecords,
+                        goToExamSystem,
+                        clearAllData
+                    };
+                }
+            }).mount('#app');
+        })();
+    </script>
+</body>
+</html>
