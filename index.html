@@ -1128,6 +1128,19 @@
                         <span class="status-value">{{ employeeCount }}</span>
                     </div>
                 </div>
+                
+                <h4 style="color: #ff7a45; margin: 15px 0 10px; font-size: 13px;">初始员工账号密码（点击可快速填充）</h4>
+                <div class="employee-list">
+                    <div class="employee-item" v-for="(emp, key) in defaultEmployees" :key="key" @click="quickFillEmployee(key)">
+                        <div class="employee-name">{{ emp.name }} (工号: {{ emp.id }})</div>
+                        <div class="employee-detail">初始密码: <code style="color: #52c41a; background: rgba(82,196,26,0.1); padding: 2px 6px; border-radius: 4px;">{{ emp.password }}</code></div>
+                        <div class="employee-detail">门店: {{ emp.shop }}</div>
+                    </div>
+                </div>
+                
+                <div class="divider"></div>
+                
+                <h4 style="color: #ff7a45; margin: 15px 0 10px; font-size: 13px;">当前系统员工</h4>
                 <div class="employee-list" v-if="employeeCount > 0">
                     <div class="employee-item" v-for="(emp, key) in employees" :key="key" @click="quickFillEmployee(key)">
                         <div class="employee-name">{{ emp.name || key }}</div>
@@ -1135,6 +1148,7 @@
                     </div>
                 </div>
                 <button class="action-btn" @click="refreshEmployees">🔄 刷新员工数据</button>
+                <button class="action-btn danger" @click="resetEmployeeData">🗑️ 重置员工数据</button>
             </div>
 
             <div class="divider"></div>
@@ -1184,6 +1198,81 @@
 
             createApp({
                 setup() {
+                    const DEFAULT_EMPLOYEES = Object.freeze({
+                        "HHT001": {
+                            id: "HHT001",
+                            name: "王博通",
+                            username: "wangbotong",
+                            password: "Hht@2024#001",
+                            passwordMd5: "653cbed21c5013c9de86d6e3f026ed0d",
+                            phone: "13800138001",
+                            shop: "韩花亭烤肉一店",
+                            role: "employee",
+                            type: "employee",
+                            status: "approved"
+                        },
+                        "HHT002": {
+                            id: "HHT002",
+                            name: "赵桥海",
+                            username: "zhaoqiaohai",
+                            password: "Hht@2024#002",
+                            passwordMd5: "41b6a37ee977812704ed673281dd5c3b",
+                            phone: "13800138002",
+                            shop: "韩花亭烤肉一店",
+                            role: "employee",
+                            type: "employee",
+                            status: "approved"
+                        },
+                        "HHT003": {
+                            id: "HHT003",
+                            name: "吕梦阳",
+                            username: "lvmengyang",
+                            password: "Hht@2024#003",
+                            passwordMd5: "4cf9d7a27454e783046938d63c4fb7ff",
+                            phone: "13800138003",
+                            shop: "韩花亭烤肉两店",
+                            role: "employee",
+                            type: "employee",
+                            status: "approved"
+                        },
+                        "HHT004": {
+                            id: "HHT004",
+                            name: "丁文雅",
+                            username: "dingwenya",
+                            password: "Hht@2024#004",
+                            passwordMd5: "6dfda571796752fc253f6f1fb3d00bfe",
+                            phone: "13800138004",
+                            shop: "韩花亭烤肉两店",
+                            role: "employee",
+                            type: "employee",
+                            status: "approved"
+                        },
+                        "HHT005": {
+                            id: "HHT005",
+                            name: "蒋阳",
+                            username: "jiangyang",
+                            password: "Hht@2024#005",
+                            passwordMd5: "44a9691df3f6c13c4f87e3f0ecb18197",
+                            phone: "13800138005",
+                            shop: "韩花亭烤肉三店",
+                            role: "employee",
+                            type: "employee",
+                            status: "approved"
+                        },
+                        "HHT006": {
+                            id: "HHT006",
+                            name: "薛发展",
+                            username: "xuefazhan",
+                            password: "Hht@2024#006",
+                            passwordMd5: "f23032684d06135556a7e667dd3de86f",
+                            phone: "13800138006",
+                            shop: "韩花亭烤肉三店",
+                            role: "employee",
+                            type: "employee",
+                            status: "approved"
+                        }
+                    });
+
                     const CONFIG = Object.freeze({
                         EXAM_SYSTEM_URL: 'https://jgf122.github.io/',
                         JWT_SECRET: 'hht_exam_system_secret_key_2024',
@@ -1196,7 +1285,8 @@
                             AUTH_USER: 'hht_auth_user',
                             LOGIN_ATTEMPTS: 'hht_login_attempts',
                             LOCK_TIME: 'hht_lock_time',
-                            LOGIN_RECORDS: 'hht_login_records'
+                            LOGIN_RECORDS: 'hht_login_records',
+                            EMPLOYEE_DATA_INITIALIZED: 'hht_employee_data_initialized'
                         }),
                         SYNC_CHANNEL: 'hht_login_sync_channel',
                         VALIDATION: Object.freeze({
@@ -1422,6 +1512,50 @@
                         const bindings = safeGetLocalStorage('hht_phone_bindings');
                         if (!bindings) return {};
                         return safeParseJSON(bindings, {});
+                    };
+
+                    const initializeEmployeeData = () => {
+                        const initialized = safeGetLocalStorage(CONFIG.STORAGE_KEYS.EMPLOYEE_DATA_INITIALIZED);
+                        if (initialized === 'true') {
+                            console.log('员工数据已初始化，跳过');
+                            return;
+                        }
+
+                        try {
+                            let phoneBindings = getEmployees();
+
+                            Object.entries(DEFAULT_EMPLOYEES).forEach(([empId, emp]) => {
+                                phoneBindings[emp.phone] = {
+                                    id: emp.id,
+                                    username: emp.username,
+                                    name: emp.name,
+                                    shop: emp.shop,
+                                    role: emp.role,
+                                    type: emp.type,
+                                    status: emp.status,
+                                    password: emp.passwordMd5,
+                                    bindTime: new Date().toISOString()
+                                };
+
+                                phoneBindings[empId] = {
+                                    id: emp.id,
+                                    username: emp.username,
+                                    name: emp.name,
+                                    shop: emp.shop,
+                                    role: emp.role,
+                                    type: emp.type,
+                                    status: emp.status,
+                                    password: emp.passwordMd5,
+                                    bindTime: new Date().toISOString()
+                                };
+                            });
+
+                            safeSetLocalStorage('hht_phone_bindings', JSON.stringify(phoneBindings));
+                            safeSetLocalStorage(CONFIG.STORAGE_KEYS.EMPLOYEE_DATA_INITIALIZED, 'true');
+                            console.log('员工数据初始化成功');
+                        } catch (error) {
+                            console.error('员工数据初始化失败:', error);
+                        }
                     };
 
                     const togglePassword = () => {
@@ -1658,6 +1792,7 @@
                         loadRememberedEmployeeId();
                         createParticles();
                         initSyncChannel();
+                        initializeEmployeeData();
                         if (isLocked.value) {
                             startLockCountdown();
                         }
@@ -1784,8 +1919,18 @@
                         window.location.href = CONFIG.EXAM_SYSTEM_URL;
                     };
 
+                    const resetEmployeeData = () => {
+                        if (confirm('⚠️ 确定要重置员工数据吗？\n\n这将重新初始化所有员工账号密码。\n此操作不可恢复！')) {
+                            safeRemoveLocalStorage('hht_phone_bindings');
+                            safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.EMPLOYEE_DATA_INITIALIZED);
+                            initializeEmployeeData();
+                            refreshEmployees();
+                            alert('员工数据已重置！');
+                        }
+                    };
+
                     const clearAllData = () => {
-                        if (confirm('⚠️ 确定要重置所有数据吗？\n\n这将清除：\n- 登录状态\n- 登录尝试记录\n- 锁定状态\n- 登录历史\n- 记住的工号\n\n此操作不可恢复！')) {
+                        if (confirm('⚠️ 确定要重置所有数据吗？\n\n这将清除：\n- 登录状态\n- 登录尝试记录\n- 锁定状态\n- 登录历史\n- 记住的工号\n- 员工数据\n\n此操作不可恢复！')) {
                             safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.JWT_TOKEN);
                             safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.AUTH_USER);
                             safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.LOGIN_ATTEMPTS);
@@ -1793,8 +1938,11 @@
                             safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.LOGIN_RECORDS);
                             safeRemoveLocalStorage(CONFIG.REMEMBER_EMPLOYEE_ID_KEY);
                             safeRemoveLocalStorage(CONFIG.SYNC_CHANNEL);
+                            safeRemoveLocalStorage('hht_phone_bindings');
+                            safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.EMPLOYEE_DATA_INITIALIZED);
                             refreshStatus();
                             refreshLoginRecords();
+                            refreshEmployees();
                             alert('所有数据已重置！');
                         }
                     };
@@ -1843,7 +1991,9 @@
                         formatRecordTime,
                         clearLoginRecords,
                         goToExamSystem,
-                        clearAllData
+                        clearAllData,
+                        defaultEmployees: DEFAULT_EMPLOYEES,
+                        resetEmployeeData
                     };
                 }
             }).mount('#app');
