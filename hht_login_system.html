@@ -6,7 +6,16 @@
     <meta name="description" content="韩花亭内部考试系统统一登录">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="robots" content="noindex, nofollow">
+    <meta http-equiv="X-Content-Type-Options" content="nosniff">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin">
     <title>韩花亭内部考试系统 统一登录</title>
+    
+    <!-- CDN预连接 -->
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    
+    <!-- 第三方库 -->
     <script src="https://cdn.jsdelivr.net/npm/vue@3.4.21/dist/vue.global.prod.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.19.0/js/md5.min.js"></script>
     <style>
@@ -1176,7 +1185,7 @@
             createApp({
                 setup() {
                     const CONFIG = Object.freeze({
-                        EXAM_SYSTEM_URL: './韩花亭烤肉考试系统_v2.19.0.html',
+                        EXAM_SYSTEM_URL: 'https://jgf122.github.io/',
                         JWT_SECRET: 'hht_exam_system_secret_key_2024',
                         TOKEN_EXPIRE_HOURS: 24,
                         MAX_LOGIN_ATTEMPTS: 5,
