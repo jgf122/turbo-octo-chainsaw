@@ -2278,6 +2278,7 @@
                         });
                         // ==================== 安全增强代码结束 ====================
                         
+                        // 先清除所有错误状态
                         errorMessage.value = '';
                         showError.value = false;
                         errorField.value = '';
@@ -2287,6 +2288,7 @@
                         }
 
                         isLoading.value = true;
+                        let loginProcessSucceeded = false; // 标记：登录流程是否成功
 
                         try {
                             await new Promise(resolve => setTimeout(resolve, 600));
@@ -2371,6 +2373,8 @@
                                 return;
                             }
 
+                            // ==================== 登录成功分支开始 ====================
+                            loginProcessSucceeded = true; // 标记：登录成功
                             resetLoginAttempts(empId);
                             saveRememberedEmployeeId();
                             loginSuccess.value = true;
@@ -2391,6 +2395,7 @@
                                 shop: employee.shop
                             });
                             
+                            // 清除密码，但标记登录成功防止错误提示
                             // ==================== 安全修复：登录成功后立即清除密码 ====================
                             password.value = '';
                             // ==================== 安全修复代码结束 ====================
@@ -2425,15 +2430,20 @@
                             safeSetLocalStorage('hht_user_auth', ssoEncrypted);
                             // ==================== SSO单点登录代码结束 ====================
 
-                            await new Promise(resolve => setTimeout(resolve, 500));
+                            await new Promise(resolve => setTimeout(resolve, 1000));
                             window.location.href = CONFIG.EXAM_SYSTEM_URL;
+                            // ==================== 登录成功分支结束 ====================
 
                         } catch (error) {
-                            console.error('登录错误:', error);
-                            errorMessage.value = '登录异常，请稍后重试';
-                            recordLogin(false, sanitizeInput(employeeId.value), 'SYSTEM_ERROR');
+                            // 只有在登录流程未成功时才显示错误
+                            if (!loginProcessSucceeded) {
+                                console.error('登录错误:', error);
+                                errorMessage.value = '登录异常，请稍后重试';
+                                recordLogin(false, sanitizeInput(employeeId.value), 'SYSTEM_ERROR');
+                            }
                         } finally {
-                            if (!loginSuccess.value) {
+                            // 只有在登录流程未成功时才恢复可点击状态
+                            if (!loginProcessSucceeded) {
                                 isLoading.value = false;
                             }
                         }
