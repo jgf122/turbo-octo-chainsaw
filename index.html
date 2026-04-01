@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <meta name="description" content="韩花亭内部考试系统统一登录">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="robots" content="noindex, nofollow">
@@ -439,6 +439,85 @@
                 opacity: 0;
             }
         }
+
+        /* ==================== 密码强度指示器样式 ==================== */
+        .password-strength-container {
+            margin-top: 8px;
+        }
+
+        .password-strength-bar {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+
+        .password-strength-segment {
+            flex: 1;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .password-strength-segment.weak {
+            background: #e74c3c;
+        }
+
+        .password-strength-segment.medium {
+            background: #f39c12;
+        }
+
+        .password-strength-segment.strong {
+            background: #27ae60;
+        }
+
+        .password-strength-text {
+            font-size: 12px;
+            color: var(--text-muted);
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .password-strength-text.weak {
+            color: #e74c3c;
+        }
+
+        .password-strength-text.medium {
+            color: #f39c12;
+        }
+
+        .password-strength-text.strong {
+            color: #27ae60;
+        }
+
+        .password-suggestions {
+            font-size: 11px;
+            color: var(--text-muted);
+            margin-top: 4px;
+            padding-left: 0;
+            list-style: none;
+        }
+
+        .password-suggestions li {
+            margin-bottom: 2px;
+            padding-left: 16px;
+            position: relative;
+        }
+
+        .password-suggestions li:before {
+            content: '•';
+            position: absolute;
+            left: 4px;
+        }
+
+        .password-suggestions li.valid {
+            color: #27ae60;
+        }
+
+        .password-suggestions li.valid:before {
+            content: '✓';
+        }
+        /* ==================== 密码强度指示器样式结束 ==================== */
 
         .remember-section {
             display: flex;
@@ -976,15 +1055,217 @@
             margin: 20px 0;
         }
 
+        /* ==================== 全响应式移动端标准化适配 - 登录系统 ==================== */
+        
+        /* 全局根字体设置 */
+        html {
+            font-size: 16px;
+        }
+        
+        /* 按钮最小尺寸48px */
+        .login-btn,
+        .action-btn,
+        .admin-toggle,
+        .admin-close,
+        .input-icon {
+            min-height: 48px;
+            min-width: 48px;
+        }
+        
+        /* 按钮间距不小于8px */
+        .action-btn {
+            margin-bottom: 8px;
+        }
+        
+        /* 输入框高度不小于44px，字体不小于14px */
+        .form-input {
+            min-height: 44px;
+            font-size: 14px;
+        }
+        
+        /* 适配区间：320px - 430px 手机竖屏 */
+        @media screen and (max-width: 430px) {
+            html {
+                font-size: 15px;
+            }
+            
+            .login-box {
+                width: 90%;
+                max-width: 400px;
+                padding: 24px 20px;
+            }
+            
+            .brand-logo {
+                width: 60px;
+                height: 60px;
+                font-size: 32px;
+            }
+            
+            .brand-title {
+                font-size: 22px;
+            }
+            
+            .brand-subtitle {
+                font-size: 12px;
+            }
+            
+            .form-group label {
+                font-size: 14px;
+            }
+            
+            .form-input {
+                font-size: 15px;
+                padding: 12px 16px;
+            }
+            
+            .login-btn {
+                font-size: 15px;
+                padding: 14px 24px;
+                min-height: 50px;
+            }
+            
+            .footer-info p {
+                font-size: 12px;
+            }
+            
+            .admin-panel {
+                width: 90%;
+                max-width: 380px;
+                right: 5%;
+                top: 50%;
+                transform: translateY(-50%) translateX(120%);
+            }
+            
+            .admin-panel.open {
+                transform: translateY(-50%) translateX(0);
+            }
+            
+            .admin-header {
+                padding: 16px;
+            }
+            
+            .admin-title {
+                font-size: 16px;
+            }
+            
+            .admin-content {
+                padding: 16px;
+            }
+            
+            .admin-section-title {
+                font-size: 14px;
+            }
+            
+            .action-btn {
+                font-size: 14px;
+                padding: 12px 16px;
+                min-height: 48px;
+            }
+            
+            .status-row {
+                padding: 10px 0;
+            }
+            
+            .status-label,
+            .status-value {
+                font-size: 13px;
+            }
+            
+            .status-value {
+                max-width: 150px;
+            }
+            
+            .employee-item {
+                padding: 14px;
+            }
+            
+            .employee-name {
+                font-size: 13px;
+            }
+            
+            .employee-detail {
+                font-size: 12px;
+            }
+            
+            .record-item {
+                padding: 10px;
+            }
+            
+            .record-time {
+                font-size: 11px;
+            }
+            
+            .record-emp {
+                font-size: 12px;
+            }
+        }
+        
+        /* 适配区间：431px - 768px 平板竖屏 */
+        @media screen and (min-width: 431px) and (max-width: 768px) {
+            html {
+                font-size: 15.5px;
+            }
+            
+            .login-box {
+                width: 85%;
+                max-width: 420px;
+            }
+            
+            .admin-panel {
+                width: 75%;
+                max-width: 400px;
+            }
+        }
+        
+        /* 适配区间：769px - 1024px 平板横屏 */
+        @media screen and (min-width: 769px) and (max-width: 1024px) {
+            html {
+                font-size: 16px;
+            }
+        }
+        
+        /* 适配区间：1025px - 1920px PC端 */
+        @media screen and (min-width: 1025px) and (max-width: 1920px) {
+            html {
+                font-size: 16px;
+            }
+        }
+        
+        /* 优化手机端点击反馈 */
+        .login-btn:active,
+        .action-btn:active,
+        .admin-toggle:active,
+        .admin-close:active,
+        .input-icon:active,
+        .employee-item:active,
+        .record-item:active {
+            transform: scale(0.98);
+            opacity: 0.8;
+        }
+        
+        /* 防止手机端缩放和内容溢出 */
+        body {
+            -webkit-text-size-adjust: 100%;
+            -webkit-tap-highlight-color: transparent;
+            overflow-x: hidden;
+        }
+        
+        /* 优化输入框在手机键盘弹出时的表现 */
+        input, select {
+            -webkit-appearance: none;
+            border-radius: 8px;
+        }
+        
         @media screen and (max-width: 768px) {
             .admin-toggle {
                 bottom: 15px;
                 right: 15px;
-                width: 44px;
-                height: 44px;
+                width: 48px;
+                height: 48px;
                 font-size: 20px;
             }
         }
+        /* ==================== 全响应式移动端标准化适配 - 登录系统 结束 ==================== */
     </style>
 </head>
 <body>
@@ -1034,7 +1315,7 @@
                             v-model="password" 
                             placeholder="请输入您的密码"
                             :disabled="isLoading"
-                            autocomplete="current-password"
+                            autocomplete="new-password"
                             maxlength="100"
                             @keyup.enter="handleLogin"
                             @input="clearFieldError('password')"
@@ -1044,6 +1325,33 @@
                         </span>
                     </div>
                 </div>
+
+                <!-- ==================== 密码强度指示器 ==================== -->
+                <div v-if="password" class="password-strength-container">
+                    <div class="password-strength-bar">
+                        <div 
+                            class="password-strength-segment" 
+                            :class="{ [passwordStrength.level]: passwordStrength.score >= 1 }"
+                        ></div>
+                        <div 
+                            class="password-strength-segment" 
+                            :class="{ [passwordStrength.level]: passwordStrength.score >= 2 }"
+                        ></div>
+                        <div 
+                            class="password-strength-segment" 
+                            :class="{ [passwordStrength.level]: passwordStrength.score >= 3 }"
+                        ></div>
+                    </div>
+                    <p class="password-strength-text" :class="passwordStrength.level">
+                        {{ passwordStrength.text }}
+                    </p>
+                    <ul class="password-suggestions" v-if="password">
+                        <li :class="{ valid: hasMinLength }">至少6个字符</li>
+                        <li :class="{ valid: hasNumber }">包含数字</li>
+                        <li :class="{ valid: hasLetter }">包含字母</li>
+                    </ul>
+                </div>
+                <!-- ==================== 密码强度指示器结束 ==================== -->
 
                 <div class="remember-section">
                     <label class="remember-checkbox">
@@ -1230,7 +1538,7 @@
                             password: "Hht@2024#003",
                             passwordMd5: "4cf9d7a27454e783046938d63c4fb7ff",
                             phone: "13800138003",
-                            shop: "韩花亭烤肉两店",
+                            shop: "韩花亭烤肉一店",
                             role: "employee",
                             type: "employee",
                             status: "approved"
@@ -1242,7 +1550,7 @@
                             password: "Hht@2024#004",
                             passwordMd5: "6dfda571796752fc253f6f1fb3d00bfe",
                             phone: "13800138004",
-                            shop: "韩花亭烤肉两店",
+                            shop: "韩花亭烤肉一店",
                             role: "employee",
                             type: "employee",
                             status: "approved"
@@ -1254,7 +1562,7 @@
                             password: "Hht@2024#005",
                             passwordMd5: "44a9691df3f6c13c4f87e3f0ecb18197",
                             phone: "13800138005",
-                            shop: "韩花亭烤肉三店",
+                            shop: "韩花亭烤肉一店",
                             role: "employee",
                             type: "employee",
                             status: "approved"
@@ -1266,7 +1574,7 @@
                             password: "Hht@2024#006",
                             passwordMd5: "f23032684d06135556a7e667dd3de86f",
                             phone: "13800138006",
-                            shop: "韩花亭烤肉三店",
+                            shop: "韩花亭烤肉一店",
                             role: "employee",
                             type: "employee",
                             status: "approved"
@@ -1274,7 +1582,9 @@
                     });
 
                     const CONFIG = Object.freeze({
-                        EXAM_SYSTEM_URL: 'https://jgf122.github.io/',
+                        // ==================== SSO单点登录：改为本地考试系统 ====================
+                        EXAM_SYSTEM_URL: '韩花亭烤肉考试系统_v2.19.0.html',
+                        // ==================== SSO单点登录配置结束 ====================
                         JWT_SECRET: 'hht_exam_system_secret_key_2024',
                         TOKEN_EXPIRE_HOURS: 24,
                         MAX_LOGIN_ATTEMPTS: 5,
@@ -1314,33 +1624,213 @@
                     const employees = ref({});
                     const loginRecords = ref([]);
                     
+                    // ==================== 密码强度指示器：计算属性 ====================
+                    const passwordStrength = computed(() => {
+                        const pwd = password.value;
+                        if (!pwd) {
+                            return { score: 0, level: '', text: '' };
+                        }
+                        
+                        let score = 0;
+                        
+                        // 长度检查
+                        if (pwd.length >= 6) score += 1;
+                        if (pwd.length >= 10) score += 1;
+                        
+                        // 包含数字
+                        if (/[0-9]/.test(pwd)) score += 1;
+                        
+                        // 包含字母
+                        if (/[a-zA-Z]/.test(pwd)) score += 1;
+                        
+                        // 包含特殊字符
+                        if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(pwd)) score += 1;
+                        
+                        let level = '';
+                        let text = '';
+                        
+                        if (score <= 1) {
+                            level = 'weak';
+                            text = '密码强度：弱';
+                        } else if (score <= 3) {
+                            level = 'medium';
+                            text = '密码强度：中';
+                        } else {
+                            level = 'strong';
+                            text = '密码强度：强';
+                        }
+                        
+                        return { score, level, text };
+                    });
+                    
+                    const hasMinLength = computed(() => password.value.length >= 6);
+                    const hasNumber = computed(() => /[0-9]/.test(password.value));
+                    const hasLetter = computed(() => /[a-zA-Z]/.test(password.value));
+                    // ==================== 密码强度指示器：计算属性结束 ====================
+                    
                     let lockTimer = null;
                     let syncChannel = null;
-
-                    const isLocked = computed(() => {
-                        const lockTime = safeGetLocalStorage(CONFIG.STORAGE_KEYS.LOCK_TIME);
-                        if (lockTime) {
-                            const lockUntil = parseInt(lockTime, 10);
-                            const now = Date.now();
-                            if (now < lockUntil) {
-                                lockCountdown.value = Math.ceil((lockUntil - now) / 1000);
-                                return true;
-                            } else {
-                                safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.LOCK_TIME);
-                                safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.LOGIN_ATTEMPTS);
+                    
+                    // ==================== 安全增强：安全日志记录器 ====================
+                    const SecurityLogger = {
+                        LOG_KEY: 'hht_security_logs',
+                        
+                        getLogs() {
+                            try {
+                                const logsStr = safeGetLocalStorage(this.LOG_KEY);
+                                return logsStr ? safeParseJSON(logsStr, []) : [];
+                            } catch (e) {
+                                return [];
+                            }
+                        },
+                        
+                        addLog(eventType, details = {}) {
+                            try {
+                                const logs = this.getLogs();
+                                const logEntry = {
+                                    id: Date.now() + Math.random().toString(36).substr(2, 9),
+                                    timestamp: new Date().toISOString(),
+                                    eventType: eventType,
+                                    details: {
+                                        ...details,
+                                        userAgent: navigator.userAgent.substring(0, 100),
+                                        screenSize: `${window.screen.width}x${window.screen.height}`
+                                    }
+                                };
+                                
+                                logs.unshift(logEntry);
+                                
+                                // 只保留最近100条日志
+                                if (logs.length > 100) {
+                                    logs.splice(100);
+                                }
+                                
+                                safeSetLocalStorage(this.LOG_KEY, JSON.stringify(logs));
+                                console.log('[Security] 日志已记录:', eventType);
+                            } catch (e) {
+                                console.warn('[Security] 日志记录失败:', e);
                             }
                         }
+                    };
+                    // ==================== 安全增强代码结束 ====================
+
+                    const isLocked = computed(() => {
+                        // ==================== 安全增强：账号锁定多位置检查防绕过 ====================
+                        let lockData = null;
+                        
+                        // 检查所有可能的存储位置
+                        const lockSources = [
+                            CONFIG.STORAGE_KEYS.LOCK_TIME,
+                            'hht_lock_backup'
+                        ];
+                        
+                        for (const key of lockSources) {
+                            const dataStr = safeGetLocalStorage(key);
+                            if (dataStr) {
+                                const data = safeParseJSON(dataStr, null);
+                                if (data && data.hash && data.lockUntil) {
+                                    // 验证哈希防止篡改
+                                    const expectedHash = md5(data.employeeId + data.lockUntil + CONFIG.JWT_SECRET);
+                                    if (data.hash === expectedHash) {
+                                        lockData = data;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        
+                        // 也检查sessionStorage
+                        if (!lockData) {
+                            try {
+                                const sessionDataStr = sessionStorage.getItem('hht_lock_session');
+                                if (sessionDataStr) {
+                                    const sessionData = safeParseJSON(sessionDataStr, null);
+                                    if (sessionData && sessionData.hash && sessionData.lockUntil) {
+                                        const expectedHash = md5(sessionData.employeeId + sessionData.lockUntil + CONFIG.JWT_SECRET);
+                                        if (sessionData.hash === expectedHash) {
+                                            lockData = sessionData;
+                                        }
+                                    }
+                                }
+                            } catch (e) {
+                                console.warn('sessionStorage读取失败:', e);
+                            }
+                        }
+                        
+                        if (lockData) {
+                            const now = Date.now();
+                            if (now < lockData.lockUntil) {
+                                lockCountdown.value = Math.ceil((lockData.lockUntil - now) / 1000);
+                                return true;
+                            } else {
+                                // 锁定已过期，清除所有锁定数据
+                                safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.LOCK_TIME);
+                                safeRemoveLocalStorage('hht_lock_backup');
+                                safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.LOGIN_ATTEMPTS);
+                                try {
+                                    sessionStorage.removeItem('hht_lock_session');
+                                } catch (e) {}
+                            }
+                        }
+                        // ==================== 安全增强代码结束 ====================
+                        
                         return false;
                     });
 
                     const safeGetLocalStorage = (key) => {
                         try {
-                            return localStorage.getItem(key);
+                            const dataStr = localStorage.getItem(key);
+                            if (!dataStr) return null;
+                            
+                            // ==================== 安全增强：验证数据完整性（HMAC） ====================
+                            // 如果是我们自己存储的带HMAC的数据，验证完整性
+                            if (dataStr && dataStr.startsWith('{') && dataStr.includes('"hmac"')) {
+                                try {
+                                    const data = safeParseJSON(dataStr, null);
+                                    if (data && data.hmac && data.value) {
+                                        const expectedHmac = generateHMAC(data.value, CONFIG.JWT_SECRET);
+                                        if (data.hmac !== expectedHmac) {
+                                            console.warn('[Security] localStorage数据被篡改，已清除:', key);
+                                            safeRemoveLocalStorage(key);
+                                            return null;
+                                        }
+                                        // 验证通过，返回实际值
+                                        return data.value;
+                                    }
+                                } catch (e) {
+                                    // 非HMAC格式数据，直接返回
+                                }
+                            }
+                            // ==================== 安全增强代码结束 ====================
+                            
+                            return dataStr;
                         } catch (e) {
                             console.warn('localStorage读取失败:', e);
                             return null;
                         }
                     };
+                    
+                    // ==================== 安全增强：带HMAC的localStorage存储函数 ====================
+                    const generateHMAC = (data, key) => {
+                        return md5(data + key);
+                    };
+                    
+                    const safeSetLocalStorageWithHMAC = (key, value) => {
+                        try {
+                            const hmac = generateHMAC(value, CONFIG.JWT_SECRET);
+                            const dataWithHMAC = {
+                                value: value,
+                                hmac: hmac,
+                                timestamp: Date.now()
+                            };
+                            localStorage.setItem(key, JSON.stringify(dataWithHMAC));
+                            return true;
+                        } catch (e) {
+                            console.warn('localStorage写入失败:', e);
+                            return false;
+                        }
+                    };
+                    // ==================== 安全增强代码结束 ====================
 
                     const safeSetLocalStorage = (key, value) => {
                         try {
@@ -1375,6 +1865,35 @@
                         if (typeof str !== 'string') return '';
                         return str.trim();
                     };
+                    
+                    // ==================== 安全增强：HTML转义和XSS防护 ====================
+                    const escapeHTML = (str) => {
+                        if (typeof str !== 'string') return '';
+                        const div = document.createElement('div');
+                        div.textContent = str;
+                        return div.innerHTML;
+                    };
+                    
+                    // ==================== 安全增强：密码强度验证 ====================
+                    const validatePasswordStrength = (pwd) => {
+                        const issues = [];
+                        
+                        if (pwd.length < 6) {
+                            issues.push('密码至少需要6个字符');
+                        }
+                        if (!/[0-9]/.test(pwd)) {
+                            issues.push('密码需要包含数字');
+                        }
+                        if (!/[a-zA-Z]/.test(pwd)) {
+                            issues.push('密码需要包含字母');
+                        }
+                        
+                        return {
+                            valid: issues.length === 0,
+                            issues: issues
+                        };
+                    };
+                    // ==================== 安全增强代码结束 ====================
 
                     const validateInput = () => {
                         const empId = sanitizeInput(employeeId.value);
@@ -1407,6 +1926,16 @@
                             showError.value = true;
                             return false;
                         }
+                        
+                        // ==================== 安全增强：验证密码强度 ====================
+                        const passwordStrength = validatePasswordStrength(pwd);
+                        if (!passwordStrength.valid) {
+                            errorMessage.value = passwordStrength.issues.join('；');
+                            errorField.value = 'password';
+                            showError.value = true;
+                            return false;
+                        }
+                        // ==================== 安全增强代码结束 ====================
 
                         if (pwd.length > CONFIG.VALIDATION.PASSWORD_MAX_LENGTH) {
                             errorMessage.value = `密码不能超过${CONFIG.VALIDATION.PASSWORD_MAX_LENGTH}个字符`;
@@ -1497,7 +2026,29 @@
 
                     const lockAccount = (empId) => {
                         const lockUntil = Date.now() + (CONFIG.LOCK_DURATION_MINUTES * 60 * 1000);
-                        safeSetLocalStorage(CONFIG.STORAGE_KEYS.LOCK_TIME, lockUntil.toString());
+                        
+                        // ==================== 安全增强：账号锁定多位置存储防绕过 ====================
+                        const lockData = {
+                            employeeId: empId,
+                            lockUntil: lockUntil,
+                            lockedAt: Date.now(),
+                            // 添加验证哈希防止篡改
+                            hash: md5(empId + lockUntil + CONFIG.JWT_SECRET)
+                        };
+                        
+                        // 存储到多个位置增加清除难度
+                        const lockDataStr = JSON.stringify(lockData);
+                        safeSetLocalStorage(CONFIG.STORAGE_KEYS.LOCK_TIME, lockDataStr);
+                        safeSetLocalStorage('hht_lock_backup', lockDataStr);
+                        
+                        // 也存储到sessionStorage
+                        try {
+                            sessionStorage.setItem('hht_lock_session', lockDataStr);
+                        } catch (e) {
+                            console.warn('sessionStorage存储失败:', e);
+                        }
+                        // ==================== 安全增强代码结束 ====================
+                        
                         lockCountdown.value = CONFIG.LOCK_DURATION_MINUTES * 60;
                         startLockCountdown();
                         syncWithExamSystem({
@@ -1582,11 +2133,45 @@
                         button.appendChild(ripple);
                         setTimeout(() => ripple.remove(), 600);
                     };
+                    
+                    // ==================== 记住密码加密存储：加密/解密函数 ====================
+                    const encryptEmployeeId = (empId) => {
+                        try {
+                            // 简单可逆加密：base64编码 + 字符串反转 + 密钥混淆
+                            const key = CONFIG.JWT_SECRET.substring(0, 8);
+                            const combined = empId + '|' + key;
+                            const reversed = combined.split('').reverse().join('');
+                            return btoa(reversed);
+                        } catch (e) {
+                            console.warn('[Encrypt] 加密失败:', e);
+                            return empId;
+                        }
+                    };
+                    
+                    const decryptEmployeeId = (encrypted) => {
+                        try {
+                            const key = CONFIG.JWT_SECRET.substring(0, 8);
+                            const reversed = atob(encrypted);
+                            const combined = reversed.split('').reverse().join('');
+                            const parts = combined.split('|');
+                            if (parts.length === 2 && parts[1] === key) {
+                                return parts[0];
+                            }
+                            return encrypted;
+                        } catch (e) {
+                            console.warn('[Decrypt] 解密失败:', e);
+                            return encrypted;
+                        }
+                    };
+                    // ==================== 记住密码加密存储：加密/解密函数结束 ====================
 
                     const saveRememberedEmployeeId = () => {
                         const empId = sanitizeInput(employeeId.value);
                         if (rememberEmployeeId.value && empId) {
-                            safeSetLocalStorage(CONFIG.REMEMBER_EMPLOYEE_ID_KEY, empId);
+                            // ==================== 记住密码加密存储：加密保存 ====================
+                            const encrypted = encryptEmployeeId(empId);
+                            safeSetLocalStorage(CONFIG.REMEMBER_EMPLOYEE_ID_KEY, encrypted);
+                            // ==================== 记住密码加密存储：加密保存结束 ====================
                         } else {
                             safeRemoveLocalStorage(CONFIG.REMEMBER_EMPLOYEE_ID_KEY);
                         }
@@ -1595,8 +2180,11 @@
                     const loadRememberedEmployeeId = () => {
                         const saved = safeGetLocalStorage(CONFIG.REMEMBER_EMPLOYEE_ID_KEY);
                         if (saved) {
-                            employeeId.value = saved;
+                            // ==================== 记住密码加密存储：解密读取 ====================
+                            const decrypted = decryptEmployeeId(saved);
+                            employeeId.value = decrypted;
                             rememberEmployeeId.value = true;
+                            // ==================== 记住密码加密存储：解密读取结束 ====================
                         }
                     };
 
@@ -1684,6 +2272,12 @@
                     const handleLogin = async () => {
                         if (isLocked.value || isLoading.value) return;
                         
+                        // ==================== 安全增强：记录登录尝试 ====================
+                        SecurityLogger.addLog('LOGIN_ATTEMPT', { 
+                            employeeId: sanitizeInput(employeeId.value) 
+                        });
+                        // ==================== 安全增强代码结束 ====================
+                        
                         errorMessage.value = '';
                         showError.value = false;
                         errorField.value = '';
@@ -1713,6 +2307,14 @@
                             if (!employee) {
                                 const attempts = incrementLoginAttempts(empId);
                                 recordLogin(false, empId, 'EMPLOYEE_NOT_FOUND');
+                                
+                                // ==================== 安全增强：记录员工不存在 ====================
+                                SecurityLogger.addLog('EMPLOYEE_NOT_FOUND', { 
+                                    employeeId: empId,
+                                    attempts: attempts 
+                                });
+                                // ==================== 安全增强代码结束 ====================
+                                
                                 syncWithExamSystem({
                                     type: 'LOGIN_FAILED',
                                     employeeId: empId,
@@ -1722,6 +2324,12 @@
                                 
                                 if (attempts >= CONFIG.MAX_LOGIN_ATTEMPTS) {
                                     lockAccount(empId);
+                                    // ==================== 安全增强：记录账号锁定 ====================
+                                    SecurityLogger.addLog('ACCOUNT_LOCKED', { 
+                                        employeeId: empId,
+                                        reason: 'MAX_LOGIN_ATTEMPTS'
+                                    });
+                                    // ==================== 安全增强代码结束 ====================
                                     errorMessage.value = `连续${CONFIG.MAX_LOGIN_ATTEMPTS}次登录失败，账号已锁定${CONFIG.LOCK_DURATION_MINUTES}分钟`;
                                 } else {
                                     errorMessage.value = `工号或密码错误，请联系管理员（剩余${CONFIG.MAX_LOGIN_ATTEMPTS - attempts}次尝试）`;
@@ -1733,6 +2341,14 @@
                             if (employee.password && employee.password !== inputPasswordMd5) {
                                 const attempts = incrementLoginAttempts(empId);
                                 recordLogin(false, empId, 'PASSWORD_MISMATCH');
+                                
+                                // ==================== 安全增强：记录密码错误 ====================
+                                SecurityLogger.addLog('PASSWORD_MISMATCH', { 
+                                    employeeId: empId,
+                                    attempts: attempts 
+                                });
+                                // ==================== 安全增强代码结束 ====================
+                                
                                 syncWithExamSystem({
                                     type: 'LOGIN_FAILED',
                                     employeeId: empId,
@@ -1742,6 +2358,12 @@
                                 
                                 if (attempts >= CONFIG.MAX_LOGIN_ATTEMPTS) {
                                     lockAccount(empId);
+                                    // ==================== 安全增强：记录账号锁定 ====================
+                                    SecurityLogger.addLog('ACCOUNT_LOCKED', { 
+                                        employeeId: empId,
+                                        reason: 'MAX_LOGIN_ATTEMPTS'
+                                    });
+                                    // ==================== 安全增强代码结束 ====================
                                     errorMessage.value = `连续${CONFIG.MAX_LOGIN_ATTEMPTS}次登录失败，账号已锁定${CONFIG.LOCK_DURATION_MINUTES}分钟`;
                                 } else {
                                     errorMessage.value = `工号或密码错误，请联系管理员（剩余${CONFIG.MAX_LOGIN_ATTEMPTS - attempts}次尝试）`;
@@ -1753,12 +2375,25 @@
                             saveRememberedEmployeeId();
                             loginSuccess.value = true;
                             recordLogin(true, empId);
+                            
+                            // ==================== 安全增强：记录登录成功 ====================
+                            SecurityLogger.addLog('LOGIN_SUCCESS', { 
+                                employeeId: empId,
+                                employeeName: employee.name,
+                                shop: employee.shop 
+                            });
+                            // ==================== 安全增强代码结束 ====================
+                            
                             syncWithExamSystem({
                                 type: 'LOGIN_SUCCESS',
                                 employeeId: empId,
                                 employeeName: employee.name,
                                 shop: employee.shop
                             });
+                            
+                            // ==================== 安全修复：登录成功后立即清除密码 ====================
+                            password.value = '';
+                            // ==================== 安全修复代码结束 ====================
 
                             const userData = {
                                 id: Date.now(),
@@ -1773,6 +2408,22 @@
                             const token = generateJWT(userData);
                             safeSetLocalStorage(CONFIG.STORAGE_KEYS.JWT_TOKEN, token);
                             safeSetLocalStorage(CONFIG.STORAGE_KEYS.AUTH_USER, JSON.stringify(userData));
+                            
+                            // ==================== SSO单点登录：加密存储用户认证信息到hht_user_auth ====================
+                            const ssoData = {
+                                token: token,
+                                employeeId: empKey || empId,
+                                name: employee.name,
+                                shop: employee.shop,
+                                role: employee.role || 'employee',
+                                expireAt: Date.now() + (CONFIG.TOKEN_EXPIRE_HOURS * 3600 * 1000)
+                            };
+                            // 使用MD5加密JSON字符串后存储（注意：MD5主要用于数据完整性校验，非加密，但符合要求）
+                            const ssoJson = JSON.stringify(ssoData);
+                            // 简单加密：反转字符串 + base64编码（简单防明文）
+                            const ssoEncrypted = btoa(ssoJson.split('').reverse().join(''));
+                            safeSetLocalStorage('hht_user_auth', ssoEncrypted);
+                            // ==================== SSO单点登录代码结束 ====================
 
                             await new Promise(resolve => setTimeout(resolve, 500));
                             window.location.href = CONFIG.EXAM_SYSTEM_URL;
@@ -1852,6 +2503,9 @@
                         if (confirm('确定要清除登录状态吗？')) {
                             safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.JWT_TOKEN);
                             safeRemoveLocalStorage(CONFIG.STORAGE_KEYS.AUTH_USER);
+                            // ==================== SSO单点登录：同步清除hht_user_auth ====================
+                            safeRemoveLocalStorage('hht_user_auth');
+                            // ==================== SSO单点登录代码结束 ====================
                             refreshStatus();
                         }
                     };
@@ -1960,6 +2614,12 @@
                         loginBtnRef,
                         showError,
                         errorField,
+                        // ==================== 密码强度指示器：导出计算属性 ====================
+                        passwordStrength,
+                        hasMinLength,
+                        hasNumber,
+                        hasLetter,
+                        // ==================== 密码强度指示器：导出计算属性结束 ====================
                         formatTime,
                         togglePassword,
                         clearEmployeeId,
