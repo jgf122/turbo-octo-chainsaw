@@ -31,14 +31,17 @@
             --brand-orange-light: #ff8f66;
             --brand-blue: #165dff;
             --brand-blue-dark: #0e4cc7;
+            --brand-purple: #7c3aed;
+            --brand-purple-dark: #5b21b6;
             --danger: #ff4d4f;
             --warning: #faad14;
             --success: #52c41a;
             --text-primary: #ffffff;
             --text-secondary: #b8b8d4;
             --text-muted: #6c6c8a;
-            --bg-dark-start: #121228;
+            --bg-dark-start: #0f0f1e;
             --bg-dark-end: #1a1a36;
+            --bg-dark-mid: #15152b;
             --bg-card: rgba(20, 20, 40, 0.85);
             --border-color: rgba(255, 122, 69, 0.2);
             --border-color-hover: rgba(255, 122, 69, 0.5);
@@ -46,7 +49,11 @@
 
         body {
             font-family: "Microsoft YaHei", "PingFang SC", "Helvetica Neue", -apple-system, BlinkMacSystemFont, sans-serif;
-            background: linear-gradient(135deg, var(--bg-dark-start) 0%, var(--bg-dark-end) 100%);
+            background: 
+                radial-gradient(ellipse at 20% 20%, rgba(255, 122, 69, 0.15) 0%, transparent 50%),
+                radial-gradient(ellipse at 80% 80%, rgba(124, 58, 237, 0.12) 0%, transparent 50%),
+                radial-gradient(ellipse at 40% 80%, rgba(22, 93, 255, 0.08) 0%, transparent 50%),
+                linear-gradient(135deg, var(--bg-dark-start) 0%, var(--bg-dark-mid) 50%, var(--bg-dark-end) 100%);
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -70,23 +77,41 @@
         .particle {
             position: absolute;
             border-radius: 50%;
-            background: rgba(255, 122, 69, 0.3);
-            animation: float 15s infinite;
+            animation: float 18s infinite;
+        }
+
+        .particle.orange {
+            background: rgba(255, 122, 69, 0.35);
+            box-shadow: 0 0 10px rgba(255, 122, 69, 0.5);
+        }
+
+        .particle.purple {
+            background: rgba(124, 58, 237, 0.25);
+            box-shadow: 0 0 10px rgba(124, 58, 237, 0.4);
+        }
+
+        .particle.blue {
+            background: rgba(22, 93, 255, 0.2);
+            box-shadow: 0 0 10px rgba(22, 93, 255, 0.3);
         }
 
         @keyframes float {
             0%, 100% {
-                transform: translateY(0) rotate(0deg);
+                transform: translateY(0) rotate(0deg) scale(1);
                 opacity: 0;
             }
             10% {
+                opacity: 0.8;
+            }
+            50% {
                 opacity: 1;
+                transform: translateY(-50vh) rotate(360deg) scale(1.2);
             }
             90% {
-                opacity: 1;
+                opacity: 0.8;
             }
             100% {
-                transform: translateY(-100vh) rotate(720deg);
+                transform: translateY(-100vh) rotate(720deg) scale(1);
                 opacity: 0;
             }
         }
@@ -1358,6 +1383,12 @@
                         <input type="checkbox" v-model="rememberEmployeeId">
                         <span>记住工号</span>
                     </label>
+                    <!-- ==================== 记住密码功能：新增UI ==================== -->
+                    <label class="remember-checkbox">
+                        <input type="checkbox" v-model="rememberPassword">
+                        <span>记住密码</span>
+                    </label>
+                    <!-- ==================== 记住密码功能UI结束 ==================== -->
                 </div>
 
                 <div v-if="errorMessage" class="error-message">
@@ -1582,14 +1613,17 @@
                     });
 
                     const CONFIG = Object.freeze({
-                        // ==================== SSO单点登录：改为本地考试系统 ====================
-                        EXAM_SYSTEM_URL: '韩花亭烤肉考试系统_v2.19.0.html',
+                        // ==================== SSO单点登录：改为GitHub Pages考试系统 ====================
+                        EXAM_SYSTEM_URL: 'https://jgf122.github.io/',
                         // ==================== SSO单点登录配置结束 ====================
                         JWT_SECRET: 'hht_exam_system_secret_key_2024',
                         TOKEN_EXPIRE_HOURS: 24,
                         MAX_LOGIN_ATTEMPTS: 5,
                         LOCK_DURATION_MINUTES: 10,
                         REMEMBER_EMPLOYEE_ID_KEY: 'hht_remember_employee_id',
+                        // ==================== 记住密码功能：新增配置 ====================
+                        REMEMBER_PASSWORD_KEY: 'hht_remember_password',
+                        // ==================== 记住密码功能配置结束 ====================
                         STORAGE_KEYS: Object.freeze({
                             JWT_TOKEN: 'hht_jwt_token',
                             AUTH_USER: 'hht_auth_user',
@@ -1615,6 +1649,9 @@
                     const errorMessage = ref('');
                     const lockCountdown = ref(0);
                     const rememberEmployeeId = ref(false);
+                    // ==================== 记住密码功能：新增变量 ====================
+                    const rememberPassword = ref(false);
+                    // ==================== 记住密码功能变量结束 ====================
                     const loginBtnRef = ref(null);
                     const showError = ref(false);
                     const errorField = ref('');
@@ -2175,6 +2212,22 @@
                         } else {
                             safeRemoveLocalStorage(CONFIG.REMEMBER_EMPLOYEE_ID_KEY);
                         }
+                        
+                        // ==================== 记住密码功能：保存密码 ====================
+                        if (rememberPassword.value && empId && password.value) {
+                            // 使用工号作为加密密钥
+                            const key = md5(empId + CONFIG.JWT_SECRET);
+                            // 简单加密：base64 + 密钥混淆
+                            const combined = password.value + '|' + key;
+                            const encrypted = btoa(combined.split('').reverse().join(''));
+                            safeSetLocalStorage(CONFIG.REMEMBER_PASSWORD_KEY, JSON.stringify({
+                                employeeId: empId,
+                                encryptedPassword: encrypted
+                            }));
+                        } else if (!rememberPassword.value) {
+                            safeRemoveLocalStorage(CONFIG.REMEMBER_PASSWORD_KEY);
+                        }
+                        // ==================== 记住密码功能：保存密码结束 ====================
                     };
 
                     const loadRememberedEmployeeId = () => {
@@ -2185,6 +2238,27 @@
                             employeeId.value = decrypted;
                             rememberEmployeeId.value = true;
                             // ==================== 记住密码加密存储：解密读取结束 ====================
+                            
+                            // ==================== 记住密码功能：加载密码 ====================
+                            const savedPasswordData = safeGetLocalStorage(CONFIG.REMEMBER_PASSWORD_KEY);
+                            if (savedPasswordData) {
+                                try {
+                                    const data = safeParseJSON(savedPasswordData, null);
+                                    if (data && data.employeeId === decrypted && data.encryptedPassword) {
+                                        const key = md5(decrypted + CONFIG.JWT_SECRET);
+                                        const reversed = atob(data.encryptedPassword);
+                                        const combined = reversed.split('').reverse().join('');
+                                        const parts = combined.split('|');
+                                        if (parts.length === 2 && parts[1] === key) {
+                                            password.value = parts[0];
+                                            rememberPassword.value = true;
+                                        }
+                                    }
+                                } catch (e) {
+                                    console.warn('[RememberPassword] 加载密码失败:', e);
+                                }
+                            }
+                            // ==================== 记住密码功能：加载密码结束 ====================
                         }
                     };
 
@@ -2192,19 +2266,21 @@
                         const container = document.getElementById('particles-container');
                         if (!container) return;
                         
-                        const particleCount = Math.min(30, Math.floor(window.innerWidth / 40));
+                        const particleCount = Math.min(40, Math.floor(window.innerWidth / 35));
                         const fragment = document.createDocumentFragment();
+                        const colors = ['orange', 'purple', 'blue'];
                         
                         for (let i = 0; i < particleCount; i++) {
                             const particle = document.createElement('div');
-                            particle.className = 'particle';
-                            const size = Math.random() * 6 + 2;
+                            const color = colors[Math.floor(Math.random() * colors.length)];
+                            particle.className = `particle ${color}`;
+                            const size = Math.random() * 8 + 3;
                             particle.style.width = `${size}px`;
                             particle.style.height = `${size}px`;
                             particle.style.left = `${Math.random() * 100}%`;
-                            particle.style.animationDuration = `${Math.random() * 10 + 10}s`;
-                            particle.style.animationDelay = `${Math.random() * 15}s`;
-                            particle.style.opacity = Math.random() * 0.5 + 0.2;
+                            particle.style.animationDuration = `${Math.random() * 12 + 12}s`;
+                            particle.style.animationDelay = `${Math.random() * 18}s`;
+                            particle.style.opacity = Math.random() * 0.6 + 0.3;
                             fragment.appendChild(particle);
                         }
                         
@@ -2621,6 +2697,7 @@
                         isLocked,
                         lockCountdown,
                         rememberEmployeeId,
+                        rememberPassword,
                         loginBtnRef,
                         showError,
                         errorField,
