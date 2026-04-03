@@ -849,7 +849,7 @@
                             await new Promise(resolve => setTimeout(resolve, 500));
 
                             // 验证
-                            const result = validateEmployee(employeeId.value.trim(), password.value);
+                            const result = await validateEmployee(employeeId.value.trim(), password.value);
                             
                             if (!result.success) {
                                 showErrorMsg(result.message, 'password');
