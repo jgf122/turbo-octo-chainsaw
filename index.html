@@ -13,6 +13,46 @@
     <!-- 第三方库 -->
     <script src="https://cdn.jsdelivr.net/npm/vue@3.4.21/dist/vue.global.prod.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/blueimp-md5@2.19.0/js/md5.min.js"></script>
+    <!-- Supabase库引入 -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.39.7/dist/umd/supabase.min.js"></script>
+    <!-- Supabase初始化脚本 -->
+    <script>
+        const SUPABASE_CONFIG = {
+            URL: 'https://aolmkhiumqfhgkxskrhc.supabase.co',
+            ANON_KEY: 'sb_publishable_PtxWniDhW4Ny_CxfUZzJQg_eoU1OQTP'
+        };
+
+        let supabase = null;
+
+        // 安全初始化Supabase
+        function initSupabaseClient() {
+            try {
+                if (window.supabase) {
+                    supabase = window.supabase.createClient(
+                        SUPABASE_CONFIG.URL,
+                        SUPABASE_CONFIG.ANON_KEY,
+                        {
+                            auth: {
+                                autoRefreshToken: true,
+                                persistSession: true,
+                                detectSessionInUrl: false
+                            }
+                        }
+                    );
+                    console.log('✅ Supabase客户端初始化成功');
+                    return true;
+                }
+                console.warn('⚠️ Supabase库未加载，将使用本地模式');
+                return false;
+            } catch (error) {
+                console.error('❌ Supabase初始化失败:', error);
+                return false;
+            }
+        }
+
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', initSupabaseClient);
+    </script>
     
     <style>
         * {
@@ -598,12 +638,11 @@
 
             // 配置
             const CONFIG = {
-                // 考试系统跳转地址（同时支持本地文件名和GitHub Pages）
-                EXAM_SYSTEM_URL: '韩花亭烤肉考试系统_v2.19.0.html',
-                // GitHub Pages备用地址
-                EXAM_SYSTEM_URL_GITHUB: 'https://jgf122.github.io/',
+                // 修改为根目录，解决GitHub Pages 404问题
+                EXAM_SYSTEM_URL: './',
                 REMEMBER_EMPLOYEE_ID_KEY: 'hht_remember_employee_id',
-                REMEMBER_PASSWORD_KEY: 'hht_remember_password'
+                REMEMBER_PASSWORD_KEY: 'hht_remember_password',
+                CURRENT_USER_KEY: 'hht_current_user'
             };
 
             // 安全存储工具
@@ -742,8 +781,37 @@
                         }
                     };
 
-                    // 验证员工
-                    const validateEmployee = (empId, pwd) => {
+                    // 验证员工（支持Supabase和本地双模式）
+                    const validateEmployee = async (empId, pwd) => {
+                        // 先尝试Supabase验证
+                        if (typeof supabase !== 'undefined' && supabase) {
+                            try {
+                                const { data, error } = await supabase
+                                    .from('users')
+                                    .select('*')
+                                    .eq('employee_id', empId)
+                                    .eq('password', pwd)
+                                    .maybeSingle();
+
+                                if (error) {
+                                    console.warn('Supabase验证失败，切换到本地模式:', error);
+                                } else if (data) {
+                                    return { 
+                                        success: true, 
+                                        employee: {
+                                            id: data.employee_id,
+                                            name: data.name,
+                                            password: data.password,
+                                            shop: data.department || '未知部门'
+                                        }
+                                    };
+                                }
+                            } catch (e) {
+                                console.warn('Supabase请求异常，切换到本地模式:', e);
+                            }
+                        }
+
+                        // 本地备用验证
                         const emp = DEFAULT_EMPLOYEES[empId];
                         if (!emp) {
                             return { success: false, message: '工号不存在' };
@@ -754,17 +822,10 @@
                         return { success: true, employee: emp };
                     };
 
-                    // 跳转到考试系统
+                    // 跳转到考试系统（直接跳转到根目录）
                     const goToExamSystem = () => {
                         console.log('正在跳转到考试系统...');
-                        
-                        // 优先尝试本地文件
-                        try {
-                            window.location.href = CONFIG.EXAM_SYSTEM_URL;
-                        } catch (e) {
-                            console.log('本地跳转失败，尝试GitHub Pages');
-                            window.location.href = CONFIG.EXAM_SYSTEM_URL_GITHUB;
-                        }
+                        window.location.href = CONFIG.EXAM_SYSTEM_URL;
                     };
 
                     // 登录处理
@@ -799,7 +860,16 @@
                             loginSuccess.value = true;
                             console.log('登录成功，用户:', result.employee.name);
 
-                            // 保存信息
+                            // 保存当前用户信息
+                            const currentUserInfo = {
+                                employee_id: result.employee.id,
+                                name: result.employee.name,
+                                shop: result.employee.shop,
+                                loginTime: new Date().toISOString()
+                            };
+                            safeSetLocalStorage(CONFIG.CURRENT_USER_KEY, JSON.stringify(currentUserInfo));
+
+                            // 保存信息（记住工号/密码）
                             saveInfo();
 
                             // 立即跳转（优先级最高）
