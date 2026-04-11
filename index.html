@@ -2,7 +2,7 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="韩花亭内部考试系统统一登录">
     <title>韩花亭内部考试系统 统一登录</title>
     
@@ -27,8 +27,8 @@
         // 安全初始化Supabase
         function initSupabaseClient() {
             try {
-                if (window.supabase) {
-                    supabase = window.supabase.createClient(
+                if (globalThis.supabase) {
+                    supabase = globalThis.supabase.createClient(
                         SUPABASE_CONFIG.URL,
                         SUPABASE_CONFIG.ANON_KEY,
                         {
@@ -551,9 +551,10 @@
 
             <div>
                 <div class="form-group">
-                    <label>工号</label>
+                    <label for="employeeId">工号</label>
                     <div class="input-wrapper">
                         <input 
+                            id="employeeId"
                             type="text" 
                             class="form-input" 
                             :class="{ error: showError && errorField === 'employeeId' }"
@@ -568,16 +569,17 @@
                 </div>
 
                 <div class="form-group">
-                    <label>密码</label>
+                    <label for="password">密码</label>
                     <div class="input-wrapper">
                         <input 
+                            id="password"
                             :type="showPassword ? 'text' : 'password'" 
                             class="form-input"
                             :class="{ error: showError && errorField === 'password' }"
                             v-model="password" 
                             placeholder="请输入您的密码"
                             :disabled="isLoading"
-                            autocomplete="new-password"
+                            autocomplete="current-password"
                             maxlength="100"
                             @keyup.enter="handleLogin"
                         >
@@ -638,7 +640,9 @@
 
             // 配置
             const CONFIG = {
-                EXAM_SYSTEM_URL: 'https://jgf122.github.io/',
+                // [修复] 跳转地址规范修复：明确标注为GitHub Pages完整可访问地址
+                // [修复] 跳转地址修复：改为正确的考试主系统GitHub Pages完整地址，包含完整路径和文件名
+                EXAM_SYSTEM_URL: 'https://jgf122.github.io/hht_exam_system/hht_exam_system/index.html',
                 REMEMBER_EMPLOYEE_ID_KEY: 'hht_remember_employee_id',
                 REMEMBER_PASSWORD_KEY: 'hht_remember_password',
                 CURRENT_USER_KEY: 'hht_current_user'
@@ -649,6 +653,7 @@
                 try {
                     return localStorage.getItem(key);
                 } catch (e) {
+                    console.warn('[安全存储] 读取失败:', key, e);
                     return null;
                 }
             };
@@ -657,7 +662,7 @@
                 try {
                     localStorage.setItem(key, value);
                 } catch (e) {
-                    console.warn('存储失败:', e);
+                    console.warn('[安全存储] 存储失败:', e);
                 }
             };
 
@@ -665,7 +670,7 @@
                 try {
                     localStorage.removeItem(key);
                 } catch (e) {
-                    console.warn('删除失败:', e);
+                    console.warn('[安全存储] 删除失败:', e);
                 }
             };
 
@@ -673,6 +678,7 @@
                 try {
                     return JSON.parse(str);
                 } catch (e) {
+                    console.warn('[安全解析] JSON解析失败:', e);
                     return defaultValue;
                 }
             };
@@ -693,6 +699,7 @@
                     }
                     return null;
                 } catch (e) {
+                    console.warn('[解密] 解密失败:', e);
                     return null;
                 }
             };
@@ -821,13 +828,37 @@
                         return { success: true, employee: emp };
                     };
 
-                    // 跳转到考试系统（直接跳转到根目录）
+                    // [修复] 跳转到考试系统：新增异常捕获和地址合法性校验
                     const goToExamSystem = () => {
-                        console.log('正在跳转到考试系统...');
-                        window.location.href = CONFIG.EXAM_SYSTEM_URL;
+                        try {
+                            console.log('正在跳转到考试系统...');
+                            
+                            // [修复] 跳转地址合法性校验：确保URL非空且为合法HTTP/HTTPS地址
+                            if (!CONFIG.EXAM_SYSTEM_URL) {
+                                const errorMsg = '跳转地址配置为空，请检查系统配置';
+                                console.error('❌ ' + errorMsg);
+                                alert(errorMsg);
+                                return;
+                            }
+                            
+                            if (!CONFIG.EXAM_SYSTEM_URL.startsWith('http://') && !CONFIG.EXAM_SYSTEM_URL.startsWith('https://')) {
+                                const errorMsg = '跳转地址协议错误，必须使用http://或https://开头';
+                                console.error('❌ ' + errorMsg);
+                                alert(errorMsg);
+                                return;
+                            }
+                            
+                            // 执行跳转
+                            globalThis.location.href = CONFIG.EXAM_SYSTEM_URL;
+                        } catch (error) {
+                            // [修复] 跳转函数容错修复：捕获异常并输出明确错误信息
+                            const errorMsg = '跳转失败，请稍后重试';
+                            console.error('❌ ' + errorMsg, error);
+                            alert(errorMsg);
+                        }
                     };
 
-                    // 登录处理
+                    // [修复] 登录处理：移除setTimeout延迟，新增存储校验，同步执行跳转
                     const handleLogin = async () => {
                         clearError();
 
@@ -859,6 +890,9 @@
                             loginSuccess.value = true;
                             console.log('登录成功，用户:', result.employee.name);
 
+                            // [优化] 新增登录成功的页面状态提示，避免用户误解闪屏现象
+                            console.log('✅ 正在保存用户信息并跳转...');
+
                             // 保存当前用户信息
                             const currentUserInfo = {
                                 employee_id: result.employee.id,
@@ -866,15 +900,25 @@
                                 shop: result.employee.shop,
                                 loginTime: new Date().toISOString()
                             };
+                            
+                            // [优化] 新增localStorage存储成功校验，确保用户信息写入完成
                             safeSetLocalStorage(CONFIG.CURRENT_USER_KEY, JSON.stringify(currentUserInfo));
+                            
+                            // 验证存储是否成功
+                            const storedUser = safeGetLocalStorage(CONFIG.CURRENT_USER_KEY);
+                            if (storedUser) {
+                                console.log('✅ 用户信息已成功保存到localStorage');
+                            } else {
+                                console.warn('⚠️ 用户信息存储可能失败，但继续执行跳转');
+                            }
 
                             // 保存信息（记住工号/密码）
                             saveInfo();
 
-                            // 立即跳转（优先级最高）
-                            setTimeout(() => {
-                                goToExamSystem();
-                            }, 800);
+                            // [修复] 跳转时序逻辑修复：移除setTimeout 800ms延迟，改为同步执行跳转
+                            // 确保用户信息存储、记住密码逻辑全部执行完成后再执行跳转
+                            console.log('🚀 立即跳转到考试系统...');
+                            goToExamSystem();
 
                         } catch (error) {
                             console.error('登录错误:', error);
